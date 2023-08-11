@@ -10,6 +10,6 @@ c++的url，base64，MD5加密包含头文件
 * string base64encode(string )
 * string base64encode(string )
 * string md5(string )
-_ 读入值为str格式的字符串 
+读入值为str格式的字符串 
 ### 返回值
 函数返回string字符串，需使用string类型的变量接收
