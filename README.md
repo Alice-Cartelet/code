@@ -1,5 +1,5 @@
 # code
-c++的url，base64，MD5加密包含头文件，md5加密库
+c++的url，base64，md5加密包含头文件，md5加密库文件
 ## 使用方式
 ### 添加头文件
 添加头文件名code-utf-8.h
