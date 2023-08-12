@@ -11,7 +11,7 @@ int main()
 		getline(cin,str);
 		string str2=base64encode(str);
 		string str3=urlencode(str); 
-		cout<<"md5: "<<md5(str)<<"\nbase64encode£º"<<str2<<"\nbase64decode£º"<<base64decode(str2 )<<"\nurlencode: "<<str3<<"\nurldecode: "<<urldecode(str3);
+		cout<<"md5: "<<md5(str)<<"\nbase64encode:"<<str2<<"\nbase64decode:"<<base64decode(str2 )<<"\nurlencode: "<<str3<<"\nurldecode: "<<urldecode(str3);
 		cout<<"\n-----------------------\n";
 	}
 	return 0;
