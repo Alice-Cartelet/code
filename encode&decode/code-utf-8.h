@@ -1,6 +1,3 @@
-/*-------本程序由Alice-Cartelet提供，遵循GPL2.0协议-----
-----------------------协议内容------------ 
-          Copyright (C) 2022 Alice-Cartelet*/
 #ifndef INDEX_H
 #define INDEX_H
 #include <iostream>
