@@ -6,11 +6,8 @@
     :root{
       --bg1: #0f172a;
       --bg2: #0b1220;
-      --card: rgba(255,255,255,0.06);
       --accent: linear-gradient(90deg,#ff8a00 0%, #ff3d81 50%, #7a5cff 100%);
-      --glass: rgba(255,255,255,0.04);
       --muted: rgba(255,255,255,0.7);
-      --danger: #ff6b6b;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
     }
 
@@ -84,15 +81,31 @@
       font-size:15px;
     }
 
-    a.ghost{
+    .actions{
+      display:flex;
+      gap:12px;
+      margin:16px 0;
+      flex-wrap:wrap;
+    }
+
+    a.btn, a.ghost{
       display:inline-block;
-      background:transparent;
-      color: #fff;
-      border:1px solid rgba(255,255,255,0.06);
       padding:10px 14px;
       border-radius:10px;
       text-decoration:none;
       font-weight:600;
+    }
+
+    a.ghost{
+      background:transparent;
+      color:#fff;
+      border:1px solid rgba(255,255,255,0.06);
+    }
+
+    a.btn{
+      color:#071127;
+      background:var(--accent);
+      box-shadow:0 6px 18px rgba(122,92,255,0.12);
     }
 
     .note{
@@ -119,7 +132,7 @@
             </svg>
           </div>
           <div>
-            <h1>重要通知：服务已停止运营</h1>
+            <h1>重要通知：本网站服务已停止运营</h1>
             <div style="font-size:13px;color:rgba(255,255,255,0.6)">感谢大家一路支持 — 请务必及时备份您的数据</div>
           </div>
         </div>
@@ -129,6 +142,10 @@
           在停止前，请务必导出或备份您的必要数据。
         </p>
 
+        <div class="actions">
+
+          <a class="btn" href="https://github.com/Alice-Cartelet" target="_blank">访问我的 GitHub</a>
+        </div>
 
         <p class="note">
           我们建议：
