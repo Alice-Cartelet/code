@@ -1,0 +1,144 @@
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>服务即将停止公告</title>
+  <style>
+    :root{
+      --bg1: #0f172a;
+      --bg2: #0b1220;
+      --card: rgba(255,255,255,0.06);
+      --accent: linear-gradient(90deg,#ff8a00 0%, #ff3d81 50%, #7a5cff 100%);
+      --glass: rgba(255,255,255,0.04);
+      --muted: rgba(255,255,255,0.7);
+      --danger: #ff6b6b;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    }
+
+    html,body{
+      height:100%;
+      margin:0;
+      background: radial-gradient(1200px 800px at 10% 10%, rgba(122,92,255,0.12), transparent 8%),
+                  radial-gradient(900px 600px at 90% 90%, rgba(255,61,129,0.08), transparent 10%),
+                  linear-gradient(180deg,var(--bg1), var(--bg2));
+      color: #fff;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    .wrap{
+      min-height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:32px;
+      box-sizing:border-box;
+    }
+
+    .card{
+      width:100%;
+      max-width:920px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+      border-radius:16px;
+      box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+      overflow:hidden;
+      display:grid;
+      grid-template-columns: 1fr;
+      border: 1px solid rgba(255,255,255,0.04);
+      backdrop-filter: blur(6px);
+    }
+
+    .left{
+      padding:36px;
+    }
+
+    .title{
+      display:flex;
+      align-items:center;
+      gap:16px;
+      margin-bottom:8px;
+    }
+
+    .logo{
+      width:64px;
+      height:64px;
+      flex:0 0 64px;
+      border-radius:12px;
+      background: var(--accent);
+      display:grid;
+      place-items:center;
+      box-shadow: 0 6px 20px rgba(122,92,255,0.15);
+    }
+
+    .logo svg{ width:36px; height:36px; }
+
+    h1{
+      font-size:20px;
+      margin:0;
+      letter-spacing: -0.3px;
+    }
+
+    p.lead{
+      color:var(--muted);
+      margin:14px 0 22px 0;
+      line-height:1.6;
+      font-size:15px;
+    }
+
+    a.ghost{
+      display:inline-block;
+      background:transparent;
+      color: #fff;
+      border:1px solid rgba(255,255,255,0.06);
+      padding:10px 14px;
+      border-radius:10px;
+      text-decoration:none;
+      font-weight:600;
+    }
+
+    .note{
+      margin-top:16px;
+      color:rgba(255,255,255,0.6);
+      font-size:13px;
+    }
+
+    @media (max-width:880px){
+      .card{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" role="region" aria-label="服务停止公告">
+      <div class="left">
+        <div class="title" role="banner">
+          <div class="logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="6" rx="2" fill="white" opacity="0.95"/>
+              <rect x="3" y="14" width="18" height="6" rx="2" fill="white" opacity="0.6"/>
+              <path d="M6 8v8" stroke="rgba(7,17,39,0.6)" stroke-width="1.2"/>
+            </svg>
+          </div>
+          <div>
+            <h1>重要通知：服务已停止运营</h1>
+            <div style="font-size:13px;color:rgba(255,255,255,0.6)">感谢大家一路支持 — 请务必及时备份您的数据</div>
+          </div>
+        </div>
+
+        <p class="lead">
+          由于本人没有多余的精力维护本网站服务，并且随着经济环境状况的恶化，我们的服务器于 <strong id="shutdown-date">2025-09-01</strong> 正式停止运营。
+          在停止前，请务必导出或备份您的必要数据。
+        </p>
+
+
+        <p class="note">
+          我们建议：
+          <ul style="margin:8px 0 0 18px;padding:0;color:rgba(255,255,255,0.62)">
+            <li>立即导出重要数据（数据库、文件、配置等）。</li>
+            <li>如需迁移，请通过联系管理员获取帮助。</li>
+          </ul>
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
