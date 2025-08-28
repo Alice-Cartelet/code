@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -20,6 +22,14 @@
       color: #fff;
       -webkit-font-smoothing:antialiased;
       -moz-osx-font-smoothing:grayscale;
+      animation: bgMove 30s ease-in-out infinite alternate;
+      background-size: 200% 200%;
+    }
+
+    /* 背景缓慢移动 */
+    @keyframes bgMove {
+      from { background-position: left top; }
+      to   { background-position: right bottom; }
     }
 
     .wrap{
@@ -42,12 +52,14 @@
       grid-template-columns: 1fr;
       border: 1px solid rgba(255,255,255,0.04);
       backdrop-filter: blur(6px);
-      animation: fadeIn 0.8s ease;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeIn 1.2s ease forwards;
     }
 
-    @keyframes fadeIn{
-      from{opacity:0;transform:translateY(20px);}
-      to{opacity:1;transform:translateY(0);}
+    /* 卡片加载动画 */
+    @keyframes fadeIn {
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .left{
@@ -70,12 +82,13 @@
       display:grid;
       place-items:center;
       box-shadow: 0 6px 20px rgba(122,92,255,0.15);
-      animation: pulse 3s infinite;
+      animation: pulse 3s ease-in-out infinite;
     }
 
+    /* 呼吸动画 */
     @keyframes pulse {
-      0%,100%{transform:scale(1);}
-      50%{transform:scale(1.06);}
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
     }
 
     .logo svg{ width:36px; height:36px; }
@@ -106,6 +119,7 @@
       border-radius:10px;
       text-decoration:none;
       font-weight:600;
+      transition: all 0.3s ease;
     }
 
     a.ghost{
@@ -118,6 +132,14 @@
       color:#071127;
       background:var(--accent);
       box-shadow:0 6px 18px rgba(122,92,255,0.12);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 按钮悬停效果 */
+    a.btn:hover, a.ghost:hover{
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 8px 20px rgba(122,92,255,0.3);
     }
 
     .note{
@@ -137,14 +159,14 @@
       <div class="left">
         <div class="title" role="banner">
           <div class="logo" aria-hidden="true">
-            <!-- 更显眼的图标（地球+警告） -->
-            <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24">
-              <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18a8 8 0 110-16 8 8 0 010 16z"/>
-              <path d="M12 7v5l3 3" stroke="#071127" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="6" rx="2" fill="white" opacity="0.95"/>
+              <rect x="3" y="14" width="18" height="6" rx="2" fill="white" opacity="0.6"/>
+              <path d="M6 8v8" stroke="rgba(7,17,39,0.6)" stroke-width="1.2"/>
             </svg>
           </div>
           <div>
-            <h1>⚠️ 重要通知：本网站服务已停止运营</h1>
+            <h1>重要通知：本网站服务已停止运营</h1>
             <div style="font-size:13px;color:rgba(255,255,255,0.6)">感谢大家一路支持 — 请务必及时备份您的数据</div>
           </div>
         </div>
@@ -152,20 +174,21 @@
         <p class="lead">
           由于本人没有多余的精力维护本网站服务，我们的服务器于 <strong id="shutdown-date">2025-09-01</strong> 正式停止运营。
           望我们有缘再会。
-        </p>© 2025 Alice-Cartelet
+        </p>
+        © 2025 Alice-Cartelet
 
         <div class="actions">
           <a href="https://github.com/" class="btn">访问 GitHub</a>
-          <a href="/" class="ghost">返回首页</a>
+          <a href="https://cloudflare.com" class="ghost">Cloudflare</a>
         </div>
 
-        <p class="note">
+        <div class="note">
           注意事项
           <ul style="margin:8px 0 0 18px;padding:0;color:rgba(255,255,255,0.62)">
-            <li>目前，本网站由<a href="https://cloudflare.com">Cloudflare</a>代理静态页面。</li>
-            <li>由于 Cloudflare Pages 目前仅能代理 git 静态页面，我们正在努力将原动态页面转移为静态页面。但这似乎并不顺利，需要一些时间。</li>
+            <li>目前，本网站由 <a href="https://cloudflare.com" style="color:#fff;text-decoration:underline;">Cloudflare</a> 代理静态页面。</li>
+            <li>由于 Cloudflare Pages 目前仅能代理 Git 静态页面，我们正在努力将原动态页面转移为静态页面。但这似乎并不顺利，需要一些时间。</li>
           </ul>
-        </p>
+        </div>
       </div>
     </div>
   </div>
