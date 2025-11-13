@@ -195,24 +195,33 @@
   <script>
     // 题库数据（简化版，便于练习）
     const inhibitors = [
-      { id:'rif', name:'利福霉素 (Rifamycin)', mechanism:'抑制转录起始/阻止RNA聚合酶', targets:['原核RNA聚合酶/转录'] },
-      { id:'kas', name:'春日霉素 (Kasugamycin)', mechanism:'阻断翻译起始（起始复合物形成受阻）', targets:['核糖体 30S / 翻译起始'] },
-      { id:'str', name:'链霉素 (Streptomycin)', mechanism:'结合30S导致mRNA误读', targets:['核糖体 30S / 翻译延伸/精确性'] },
-      { id:'tet', name:'四环素 (Tetracycline)', mechanism:'阻止氨酰-tRNA进入A位点', targets:['核糖体 30S / A位点阻断'] },
-      { id:'ery', name:'红霉素 (Erythromycin)', mechanism:'阻止肽链延长（阻断转位）', targets:['核糖体 50S / 肽链延长'] },
-      { id:'chlor', name:'氯霉素 (Chloramphenicol)', mechanism:'抑制肽酰转移酶（阻断肽键形成）', targets:['核糖体 50S / 肽酰转移酶'] },
-      { id:'actd', name:'放线菌酮 (Actinomycin D)', mechanism:'嵌入DNA，阻止RNA聚合酶移动（阻断转录延长）', targets:['DNA/转录延长'] },
-      { id:'aman', name:'α-鹅膏蕈碱 (α-Amanitin)', mechanism:'特异性抑制真核RNA聚合酶 II', targets:['真核RNA聚合酶 II / mRNA合成'] },
-      { id:'chx', name:'环己酰亚胺 (Cycloheximide)', mechanism:'抑制真核肽链延长（翻译抑制）', targets:['真核80S核糖体 / 肽链延长'] },
-      { id:'puro', name:'普鲁霉素 (Puromycin)', mechanism:'模拟氨酰-tRNA，提前终止蛋白合成', targets:['核糖体 A位点 / 提前终止'] },
-      { id:'5fu', name:'氟尿嘧啶 (5-FU)', mechanism:'转化为F-dUMP，抑制胸苷酸合成酶，阻断dTMP生成', targets:['胸苷酸合成 / DNA合成'] },
-      { id:'mtx', name:'甲氨蝶呤 (Methotrexate)', mechanism:'抑制二氢叶酸还原酶，阻断THF再生与核苷酸合成', targets:['DHFR / 叶酸代谢 / DNA合成'] },
-      { id:'rot', name:'鱼藤酮 (Rotenone)', mechanism:'阻断复合体I (NADH→CoQ) 的电子传递', targets:['线粒体复合体 I / 呼吸链'] },
-      { id:'ant', name:'抗霉素A (Antimycin A)', mechanism:'阻断复合体III (CoQ→Cyt c) 的电子传递', targets:['线粒体复合体 III / 呼吸链'] },
-      { id:'cn', name:'氰化物 (Cyanide)', mechanism:'不可逆抑制细胞色素氧化酶（复合体IV）', targets:['线粒体复合体 IV / 呼吸链'] },
-      { id:'olig', name:'寡霉素 (Oligomycin)', mechanism:'阻断ATP合酶F₀，阻止质子流导致ATP合成停止', targets:['ATP合酶 / 线粒体能量合成'] },
-      { id:'dnp', name:'2,4-二硝基苯酚 (DNP)', mechanism:'解偶联剂：破坏质子梯度，产生热量而非ATP', targets:['线粒体膜/解偶联'] }
-    ];
+  // ——— 转录抑制类 ———
+  { id:'rif', name:'利福霉素 (Rifamycin)', mechanism:'抑制RNA聚合酶，阻断转录', targets:['原核RNA聚合酶 / 转录'] },
+  { id:'actd', name:'放线菌酮 (Actinomycin D)', mechanism:'嵌入DNA，阻断转录延长', targets:['DNA / 转录'] },
+  { id:'aman', name:'α-鹅膏蕈碱 (α-Amanitin)', mechanism:'抑制真核RNA聚合酶 II', targets:['真核RNA聚合酶 II / 转录'] },
+
+  // ——— 翻译抑制类 ———
+  { id:'aminogly', name:'氨基糖苷类（链霉素、新霉素、卡那霉素等）', mechanism:'结合30S，导致mRNA误读或阻断起始', targets:['原核核糖体30S / 翻译'] },
+  { id:'tet', name:'四环素 (Tetracycline)', mechanism:'阻止tRNA进入A位点', targets:['原核核糖体30S / 翻译'] },
+  { id:'chlor', name:'氯霉素 (Chloramphenicol)', mechanism:'抑制肽酰转移反应', targets:['原核核糖体50S / 翻译'] },
+  { id:'mac', name:'大环内酯类（红霉素、麦迪霉素、螺旋霉素等）', mechanism:'结合50S，阻断肽链延长或转位', targets:['原核核糖体50S / 翻译'] },
+  { id:'fus', name:'梭链孢酸 (Fusidic acid)', mechanism:'抑制延伸因子EF-G作用', targets:['原核EF-G / 翻译'] },
+  { id:'chx', name:'环己酰亚胺 (Cycloheximide)', mechanism:'抑制真核翻译延长', targets:['真核核糖体 / 翻译'] },
+  { id:'puro', name:'普鲁霉素 (Puromycin)', mechanism:'模拟tRNA引起提前终止', targets:['核糖体 / 翻译'] },
+  { id:'ricin', name:'蓖麻毒素 (Ricin)', mechanism:'破坏rRNA，抑制翻译', targets:['真核核糖体 / 翻译'] },
+  { id:'dtx', name:'白喉毒素 (Diphtheria toxin)', mechanism:'使EF-2失活，阻断翻译', targets:['真核EF-2 / 翻译'] },
+
+  // ——— 核苷酸代谢抑制类 ———
+  { id:'5fu', name:'氟尿嘧啶 (5-FU)', mechanism:'抑制胸苷酸合成酶，阻断DNA合成', targets:['胸苷酸合成 / DNA合成'] },
+  { id:'mtx', name:'甲氨蝶呤 (Methotrexate)', mechanism:'抑制二氢叶酸还原酶，阻断核苷酸合成', targets:['DHFR / DNA合成'] },
+
+  // ——— 线粒体与能量代谢抑制类 ———
+  { id:'rot', name:'鱼藤酮 (Rotenone)', mechanism:'抑制呼吸链复合体I', targets:['线粒体复合体 I / 呼吸链'] },
+  { id:'ant', name:'抗霉素A (Antimycin A)', mechanism:'抑制呼吸链复合体III', targets:['线粒体复合体 III / 呼吸链'] },
+  { id:'cn', name:'氰化物 (Cyanide)', mechanism:'抑制呼吸链复合体IV', targets:['线粒体复合体 IV / 呼吸链'] },
+  { id:'olig', name:'寡霉素 (Oligomycin)', mechanism:'抑制ATP合酶，阻止ATP生成', targets:['ATP合酶 / 能量合成'] },
+  { id:'dnp', name:'2,4-二硝基苯酚 (DNP)', mechanism:'解偶联氧化磷酸化', targets:['线粒体膜 / 能量代谢'] }
+];
 
     // 构建第一部分 UI（每个抑制剂对应机制单选下拉）
     const mechanisms = Array.from(new Set(inhibitors.map(i=>i.mechanism))).sort();
