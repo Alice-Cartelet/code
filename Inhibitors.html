@@ -13,58 +13,28 @@
       --ok:#22c55e;
       --err:#ef4444;
       --glass: rgba(255,255,255,0.03);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial;
     }
     html,body{height:100%;}
     body{
       margin:0;
-      background: linear-gradient(180deg,#071026 0%, #071a2a 60%);
-      color: #e6eef8;
+      background:linear-gradient(180deg,#071026 0%, #071a2a 60%);
+      color:#e6eef8;
       -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
       padding:16px;
     }
-
-    .container{
-      max-width:920px;
-      margin:0 auto;
-    }
-
-    header{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      margin-bottom:12px;
-    }
-    header h1{
-      font-size:20px;
-      margin:0;
-    }
+    .container{max-width:920px;margin:0 auto;}
+    header{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+    header h1{font-size:20px;margin:0;}
     header p{margin:0;color:var(--muted);font-size:13px;}
-
     .card{
-      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));
       border-radius:12px;
       padding:14px;
       margin-bottom:12px;
-      box-shadow: 0 6px 18px rgba(2,6,23,0.6);
+      box-shadow:0 6px 18px rgba(2,6,23,0.6);
       border:1px solid rgba(255,255,255,0.03);
     }
-
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-    }
-    @media (max-width:640px){
-      .grid{grid-template-columns:1fr;}
-    }
-
-    label{display:block;font-size:14px;margin-bottom:6px;}
-    select, button{
-      font-size:15px;
-    }
-
     .inhibitor-row{
       display:flex;
       gap:8px;
@@ -74,49 +44,11 @@
       background:var(--glass);
       margin-bottom:8px;
     }
-
-    .inhibitor-name{
-      min-width:110px;
-      flex:0 0 auto;
-      font-weight:600;
-      font-size:15px;
-      color:#d9f2ff;
-    }
-    .mechanism-select{
-      flex:1 1 auto;
-    }
-
-    .target-block{
-      padding:10px;
-      border-radius:10px;
-      background:linear-gradient(180deg, rgba(255,255,255,0.012), rgba(255,255,255,0.01));
-      margin-bottom:10px;
-    }
-    .target-title{font-weight:700;margin-bottom:6px;font-size:15px;}
-    .checkbox-list{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-    }
-    .chk{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      background:rgba(255,255,255,0.02);
-      padding:8px 10px;
-      border-radius:8px;
-      cursor:pointer;
-      user-select:none;
-      border:1px solid rgba(255,255,255,0.02);
-    }
-    .chk input{accent-color: var(--accent); width:18px;height:18px;}
-
-    .controls{
-      display:flex;
-      gap:8px;
-      margin-top:8px;
-      flex-wrap:wrap;
-    }
+    .inhibitor-name{min-width:110px;flex:0 0 auto;font-weight:600;font-size:15px;color:#d9f2ff;}
+    .mechanism-select{flex:1 1 auto;}
+    label{display:block;font-size:14px;margin-bottom:6px;}
+    select{font-size:15px;}
+    .controls{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
     .btn{
       background:var(--accent);
       color:#01203a;
@@ -125,21 +57,14 @@
       border-radius:10px;
       font-weight:700;
       cursor:pointer;
-      box-shadow: 0 6px 14px rgba(96,165,250,0.12);
+      box-shadow:0 6px 14px rgba(96,165,250,0.12);
     }
-    .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);font-weight:600;}
-    .result{
-      margin-top:10px;
-      padding:10px;
-      border-radius:10px;
-      font-weight:700;
-    }
-    .result.ok{background:rgba(34,197,94,0.12);color:var(--ok);border:1px solid rgba(34,197,94,0.08);}
-    .result.err{background:rgba(239,68,68,0.08);color:var(--err);border:1px solid rgba(239,68,68,0.06);}
-
+    .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);}
+    .result{margin-top:10px;padding:10px;border-radius:10px;font-weight:700;}
+    .result.ok{background:rgba(34,197,94,0.12);color:var(--ok);}
+    .result.err{background:rgba(239,68,68,0.08);color:var(--err);}
     .small{font-size:13px;color:var(--muted);}
     .answer-tag{display:inline-block;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.02);margin-left:8px;font-size:12px;color:var(--muted);}
-    footer .small{margin-top:6px;text-align:center;}
   </style>
 </head>
 <body>
@@ -147,289 +72,124 @@
     <header>
       <div>
         <h1>生物化学：抑制剂对应练习</h1>
-        <p class="small">单选</p>
+        <p class="small">powered by Alice-Cartelet</p>
       </div>
     </header>
 
-    <!-- Data-driven UI -->
-    <div id="app">
-
-      <!-- Part 1 -->
-      <div class="card" id="part1">
-        <label style="font-size:15px;font-weight:800;">单选对应：为每个抑制剂选择主要的<strong>作用机制</strong></label>
-        <div id="part1-list" style="margin-top:8px;"></div>
-        <div class="controls">
-          <button class="btn" id="check1">批改</button>
-          <button class="btn secondary" id="reset1">重置</button>
-          <div id="score1" style="margin-left:auto"></div>
-        </div>
+    <div class="card" id="part1">
+      <label style="font-size:15px;font-weight:800;">为每个抑制剂选择主要的<strong>作用机制</strong></label>
+      <div id="part1-list" style="margin-top:8px;"></div>
+      <div class="controls">
+        <button class="btn" id="check1">批改</button>
+        <button class="btn secondary" id="reset1">重置</button>
+        <div id="score1" style="margin-left:auto"></div>
       </div>
-
-      <!--
-      <div class="card" id="part2">
-        <label style="font-size:15px;font-weight:800;">第二部分（多选对应）：针对每个 <strong>靶点/过程</strong>，多选作用于该靶点的抑制剂（可多选）</label>
-        <div id="targets-container" style="margin-top:8px;"></div>
-        <div class="controls">
-          <button class="btn" id="check2">批改第二部分</button>
-          <button class="btn secondary" id="reset2">重置第二部分</button>
-          <div id="score2" style="margin-left:auto"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <p class="small">使用说明：题目与答案基于常见经典抑制剂（示例），主要用于记忆与理解。若需把题库扩展/导出为 PDF 或打印版，请告诉我。</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
-          <button class="btn" id="revealAll">显示所有正确答案</button>
-          <button class="btn secondary" id="resetAll">全部重置</button>
-        </div>
-        <div id="global-feedback" style="margin-top:8px"></div>
-      </div>
-
-      <footer class="small">
-        题库包含常考抑制剂：利福霉素、春日霉素、链霉素、四环素、红霉素、氯霉素、放线菌酮、α-鹅膏蕈碱、环己酰亚胺、普鲁霉素、5-FU、甲氨蝶呤、鱼藤酮、抗霉素A、氰化物、寡霉素、DNP。
-      </footer-->
-
     </div>
   </div>
 
   <script>
-    // 题库数据（简化版，便于练习）
     const inhibitors = [
-  // ——— 转录抑制类 ———
-  { id:'rif', name:'利福霉素 (Rifamycin)', mechanism:'抑制RNA聚合酶，阻断转录', targets:['原核RNA聚合酶 / 转录'] },
-  { id:'actd', name:'放线菌酮 (Actinomycin D)', mechanism:'嵌入DNA，阻断转录延长', targets:['DNA / 转录'] },
-  { id:'aman', name:'α-鹅膏蕈碱 (α-Amanitin)', mechanism:'抑制真核RNA聚合酶 II', targets:['真核RNA聚合酶 II / 转录'] },
+      {id:'rif',name:'利福霉素 (Rifamycin)',mechanism:'抑制RNA聚合酶，阻断转录'},
+      {id:'actd',name:'放线菌酮 (Actinomycin D)',mechanism:'嵌入DNA，阻断转录延长'},
+      {id:'aman',name:'α-鹅膏蕈碱 (α-Amanitin)',mechanism:'抑制真核RNA聚合酶 II'},
+      {id:'aminogly',name:'氨基糖苷类（链霉素、新霉素等）',mechanism:'结合30S，导致mRNA误读或阻断起始'},
+      {id:'tet',name:'四环素 (Tetracycline)',mechanism:'阻止tRNA进入A位点'},
+      {id:'chlor',name:'氯霉素 (Chloramphenicol)',mechanism:'抑制肽酰转移反应'},
+      {id:'mac',name:'大环内酯类（红霉素、麦迪霉素等）',mechanism:'结合50S，阻断肽链延长或转位'},
+      {id:'fus',name:'梭链孢酸 (Fusidic acid)',mechanism:'抑制延伸因子EF-G作用'},
+      {id:'chx',name:'环己酰亚胺 (Cycloheximide)',mechanism:'抑制真核翻译延长'},
+      {id:'puro',name:'普鲁霉素 (Puromycin)',mechanism:'模拟tRNA引起提前终止'},
+      {id:'ricin',name:'蓖麻毒素 (Ricin)',mechanism:'破坏rRNA，抑制翻译'},
+      {id:'dtx',name:'白喉毒素 (Diphtheria toxin)',mechanism:'使EF-2失活，阻断翻译'},
+      {id:'5fu',name:'氟尿嘧啶 (5-FU)',mechanism:'抑制胸苷酸合成酶，阻断DNA合成'},
+      {id:'mtx',name:'甲氨蝶呤 (Methotrexate)',mechanism:'抑制二氢叶酸还原酶，阻断核苷酸合成'},
+      {id:'rot',name:'鱼藤酮 (Rotenone)',mechanism:'抑制呼吸链复合体I'},
+      {id:'ant',name:'抗霉素A (Antimycin A)',mechanism:'抑制呼吸链复合体III'},
+      {id:'cn',name:'氰化物 (Cyanide)',mechanism:'抑制呼吸链复合体IV'},
+      {id:'olig',name:'寡霉素 (Oligomycin)',mechanism:'抑制ATP合酶，阻止ATP生成'},
+      {id:'dnp',name:'2,4-二硝基苯酚 (DNP)',mechanism:'解偶联氧化磷酸化'}
+    ];
 
-  // ——— 翻译抑制类 ———
-  { id:'aminogly', name:'氨基糖苷类（链霉素、新霉素、卡那霉素等）', mechanism:'结合30S，导致mRNA误读或阻断起始', targets:['原核核糖体30S / 翻译'] },
-  { id:'tet', name:'四环素 (Tetracycline)', mechanism:'阻止tRNA进入A位点', targets:['原核核糖体30S / 翻译'] },
-  { id:'chlor', name:'氯霉素 (Chloramphenicol)', mechanism:'抑制肽酰转移反应', targets:['原核核糖体50S / 翻译'] },
-  { id:'mac', name:'大环内酯类（红霉素、麦迪霉素、螺旋霉素等）', mechanism:'结合50S，阻断肽链延长或转位', targets:['原核核糖体50S / 翻译'] },
-  { id:'fus', name:'梭链孢酸 (Fusidic acid)', mechanism:'抑制延伸因子EF-G作用', targets:['原核EF-G / 翻译'] },
-  { id:'chx', name:'环己酰亚胺 (Cycloheximide)', mechanism:'抑制真核翻译延长', targets:['真核核糖体 / 翻译'] },
-  { id:'puro', name:'普鲁霉素 (Puromycin)', mechanism:'模拟tRNA引起提前终止', targets:['核糖体 / 翻译'] },
-  { id:'ricin', name:'蓖麻毒素 (Ricin)', mechanism:'破坏rRNA，抑制翻译', targets:['真核核糖体 / 翻译'] },
-  { id:'dtx', name:'白喉毒素 (Diphtheria toxin)', mechanism:'使EF-2失活，阻断翻译', targets:['真核EF-2 / 翻译'] },
-
-  // ——— 核苷酸代谢抑制类 ———
-  { id:'5fu', name:'氟尿嘧啶 (5-FU)', mechanism:'抑制胸苷酸合成酶，阻断DNA合成', targets:['胸苷酸合成 / DNA合成'] },
-  { id:'mtx', name:'甲氨蝶呤 (Methotrexate)', mechanism:'抑制二氢叶酸还原酶，阻断核苷酸合成', targets:['DHFR / DNA合成'] },
-
-  // ——— 线粒体与能量代谢抑制类 ———
-  { id:'rot', name:'鱼藤酮 (Rotenone)', mechanism:'抑制呼吸链复合体I', targets:['线粒体复合体 I / 呼吸链'] },
-  { id:'ant', name:'抗霉素A (Antimycin A)', mechanism:'抑制呼吸链复合体III', targets:['线粒体复合体 III / 呼吸链'] },
-  { id:'cn', name:'氰化物 (Cyanide)', mechanism:'抑制呼吸链复合体IV', targets:['线粒体复合体 IV / 呼吸链'] },
-  { id:'olig', name:'寡霉素 (Oligomycin)', mechanism:'抑制ATP合酶，阻止ATP生成', targets:['ATP合酶 / 能量合成'] },
-  { id:'dnp', name:'2,4-二硝基苯酚 (DNP)', mechanism:'解偶联氧化磷酸化', targets:['线粒体膜 / 能量代谢'] }
-];
-
-    // 构建第一部分 UI（每个抑制剂对应机制单选下拉）
     const mechanisms = Array.from(new Set(inhibitors.map(i=>i.mechanism))).sort();
     const part1List = document.getElementById('part1-list');
 
-    inhibitors.forEach((inh, idx) => {
-      const row = document.createElement('div');
-      row.className = 'inhibitor-row';
-      row.innerHTML = `
+    // 动态生成题目
+    inhibitors.forEach(inh=>{
+      const row=document.createElement('div');
+      row.className='inhibitor-row';
+      row.innerHTML=`
         <div class="inhibitor-name">${inh.name}</div>
         <div class="mechanism-select">
-          <label class="small" for="sel-${inh.id}">选择主要机制</label>
-          <select id="sel-${inh.id}" data-id="${inh.id}" aria-label="${inh.name} 机制选择" style="width:100%;padding:10px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:inherit">
-            <option value="">-- 请选择 --</option>
+          <label class="small" for="sel-${inh.id}">选择机制</label>
+          <select id="sel-${inh.id}" data-id="${inh.id}">
+            <option value="">--请选择--</option>
           </select>
-        </div>
-      `;
+        </div>`;
       part1List.appendChild(row);
-
-      const sel = row.querySelector('select');
-      // create options (shuffle to vary)
-      const opts = mechanisms.slice();
-      // ensure correct mechanism present
-      if (!opts.includes(inh.mechanism)) opts.push(inh.mechanism);
-
-      // simple shuffle
-      for (let i = opts.length - 1; i > 0; i--){
-        const j = Math.floor(Math.random() * (i + 1));
-        [opts[i], opts[j]] = [opts[j], opts[i]];
-      }
-      opts.forEach(opt => {
-        const o = document.createElement('option');
-        o.value = opt;
-        o.textContent = opt;
-        sel.appendChild(o);
-      });
     });
 
-    // 构建第二部分 UI（按靶点列出，多选抑制剂）
-    // 收集所有靶点（targets数组中可能有重复）
-    const allTargets = Array.from(new Set(inhibitors.flatMap(i=>i.targets))).sort();
-    const targetsContainer = document.getElementById('targets-container');
-
-    allTargets.forEach(target => {
-      const block = document.createElement('div');
-      block.className = 'target-block';
-      block.innerHTML = `<div class="target-title">${target}</div><div class="checkbox-list" id="t-${cssSafe(target)}"></div>`;
-      targetsContainer.appendChild(block);
-
-      const list = block.querySelector('.checkbox-list');
-      // for each inhibitor, create a checkbox (so user chooses which inhibitors act on this target)
-      inhibitors.forEach(inh => {
-        const id = `chk-${inh.id}-on-${cssSafe(target)}`;
-        const label = document.createElement('label');
-        label.className = 'chk';
-        label.setAttribute('for', id);
-        label.innerHTML = `<input type="checkbox" id="${id}" data-inh="${inh.id}" data-target="${target}" /> <span style="font-size:14px">${inh.name}</span>`;
-        list.appendChild(label);
+    function refreshSelectOptions(){
+      const selected=Array.from(document.querySelectorAll('select'))
+        .map(s=>s.value)
+        .filter(v=>v!=='');
+      document.querySelectorAll('select').forEach(sel=>{
+        const val=sel.value;
+        sel.innerHTML='<option value="">--请选择--</option>';
+        mechanisms.forEach(m=>{
+          if(!selected.includes(m)||m===val){
+            const o=document.createElement('option');
+            o.value=m;
+            o.textContent=m;
+            if(m===val)o.selected=true;
+            sel.appendChild(o);
+          }
+        });
       });
+    }
+
+    // 初始化选项
+    refreshSelectOptions();
+
+    // 每次选择更新所有下拉选项
+    document.querySelectorAll('select').forEach(sel=>{
+      sel.addEventListener('change',refreshSelectOptions);
     });
 
-    // helper to make CSS-safe ids
-    function cssSafe(s){ return s.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_-]/g,''); }
-
-    // Grading logic for part1
-    document.getElementById('check1').addEventListener('click', () => {
-      let correct = 0, total = inhibitors.length;
-      inhibitors.forEach(inh => {
-        const sel = document.getElementById(`sel-${inh.id}`);
-        const val = sel.value;
-        // mark styles
-        sel.style.outline = '';
-        // clear previous answer tag
-        const parent = sel.parentElement;
-        const existingTag = parent.querySelector('.answer-tag');
-        if (existingTag) existingTag.remove();
-
-        if (val === inh.mechanism){
+    // 批改
+    document.getElementById('check1').addEventListener('click',()=>{
+      let correct=0,total=inhibitors.length;
+      inhibitors.forEach(inh=>{
+        const sel=document.getElementById(`sel-${inh.id}`);
+        const parent=sel.parentElement;
+        const old=parent.querySelector('.answer-tag');
+        if(old)old.remove();
+        sel.style.borderColor='';
+        if(sel.value===inh.mechanism){
           correct++;
-          sel.style.borderColor = 'rgba(34,197,94,0.6)';
-        } else {
-          sel.style.borderColor = 'rgba(239,68,68,0.6)';
-          // show correct answer
-          const tag = document.createElement('span');
-          tag.className = 'answer-tag';
-          tag.textContent = '答案: ' + inh.mechanism;
+          sel.style.borderColor='rgba(34,197,94,0.6)';
+        }else{
+          sel.style.borderColor='rgba(239,68,68,0.6)';
+          const tag=document.createElement('span');
+          tag.className='answer-tag';
+          tag.textContent='答案: '+inh.mechanism;
           parent.appendChild(tag);
         }
       });
-      const scoreEl = document.getElementById('score1');
-      scoreEl.innerHTML = `<div class="result ${correct===total ? 'ok':''}" style="padding:8px;border-radius:8px">${correct} / ${total}</div>`;
+      const score=document.getElementById('score1');
+      score.innerHTML=`<div class="result ${correct===total?'ok':'err'}">${correct} / ${total}</div>`;
     });
 
-    document.getElementById('reset1').addEventListener('click', () => {
-      inhibitors.forEach(inh => {
-        const sel = document.getElementById(`sel-${inh.id}`);
-        sel.value = '';
-        sel.style.borderColor = '';
-        const parent = sel.parentElement;
-        const existingTag = parent.querySelector('.answer-tag');
-        if (existingTag) existingTag.remove();
+    // 重置
+    document.getElementById('reset1').addEventListener('click',()=>{
+      document.querySelectorAll('select').forEach(sel=>{
+        sel.value='';
+        sel.style.borderColor='';
+        const tag=sel.parentElement.querySelector('.answer-tag');
+        if(tag)tag.remove();
       });
-      document.getElementById('score1').innerHTML = '';
+      document.getElementById('score1').innerHTML='';
+      refreshSelectOptions();
     });
-
-    // Grading logic for part2 (multi-select)
-    document.getElementById('check2').addEventListener('click', () => {
-      let totalTargets = allTargets.length;
-      let correctCount = 0;
-      const feedback = [];
-
-      allTargets.forEach(target => {
-        // correct set = inhibitors whose targets include this target
-        const correctSet = new Set(inhibitors.filter(i=>i.targets.includes(target)).map(i=>i.id));
-        // user set
-        const checkboxes = Array.from(document.querySelectorAll(`input[type=checkbox][data-target="${target}"]`));
-        const userSet = new Set(checkboxes.filter(cb=>cb.checked).map(cb=>cb.dataset.inh));
-
-        // correctness: user must select all correct inhibitors, and not select incorrect ones
-        let isMatch = setsEqual(correctSet, userSet);
-        if (isMatch) correctCount++;
-
-        // visual feedback
-        const container = document.getElementById(`t-${cssSafe(target)}`);
-        // remove previous markers
-        container.querySelectorAll('.chk').forEach(el => { el.style.borderColor=''; el.style.opacity='1'; });
-        // highlight
-        if (isMatch){
-          container.style.borderLeft = '4px solid rgba(34,197,94,0.6)';
-        } else {
-          container.style.borderLeft = '4px solid rgba(239,68,68,0.6)';
-        }
-
-        // append brief text
-        const existingNote = container.parentElement.querySelector('.target-note');
-        if (existingNote) existingNote.remove();
-        const note = document.createElement('div');
-        note.className = 'small target-note';
-        note.style.marginTop = '8px';
-        const correctNames = inhibitors.filter(i=>correctSet.has(i.id)).map(i=>i.name).join('，') || '（无）';
-        note.innerHTML = `正确： ${correctNames}`;
-        container.parentElement.appendChild(note);
-
-        feedback.push({target, ok: isMatch});
-      });
-
-      document.getElementById('score2').innerHTML = `<div class="result ${correctCount===totalTargets ? 'ok':''}" style="padding:8px;border-radius:8px">${correctCount} / ${totalTargets}</div>`;
-    });
-
-    document.getElementById('reset2').addEventListener('click', () => {
-      document.querySelectorAll('#targets-container input[type=checkbox]').forEach(cb => cb.checked = false);
-      document.querySelectorAll('.target-block').forEach(b => { b.style.borderLeft='none'; const note=b.querySelector('.target-note'); if(note) note.remove(); });
-      document.getElementById('score2').innerHTML = '';
-    });
-
-    // Reveal all correct answers
-    document.getElementById('revealAll').addEventListener('click', () => {
-      // Part1 answers
-      inhibitors.forEach(inh => {
-        const sel = document.getElementById(`sel-${inh.id}`);
-        sel.value = inh.mechanism;
-        sel.style.borderColor = 'rgba(34,197,94,0.6)';
-        const parent = sel.parentElement;
-        const existingTag = parent.querySelector('.answer-tag');
-        if (existingTag) existingTag.remove();
-        const tag = document.createElement('span');
-        tag.className = 'answer-tag';
-        tag.textContent = '答案: ' + inh.mechanism;
-        parent.appendChild(tag);
-      });
-      document.getElementById('score1').innerHTML = `<div class="result ok" style="padding:8px;border-radius:8px">${inhibitors.length} / ${inhibitors.length}</div>`;
-
-      // Part2 answers
-      allTargets.forEach(target => {
-        const correctSet = new Set(inhibitors.filter(i=>i.targets.includes(target)).map(i=>i.id));
-        document.querySelectorAll(`input[type=checkbox][data-target="${target}"]`).forEach(cb => {
-          cb.checked = correctSet.has(cb.dataset.inh);
-        });
-        const container = document.getElementById(`t-${cssSafe(target)}`);
-        container.parentElement.querySelectorAll('.target-note').forEach(n=>n.remove());
-        const note = document.createElement('div');
-        note.className = 'small target-note';
-        note.style.marginTop = '8px';
-        const correctNames = inhibitors.filter(i=>correctSet.has(i.id)).map(i=>i.name).join('，') || '（无）';
-        note.innerHTML = `正确： ${correctNames}`;
-        container.parentElement.appendChild(note);
-        container.parentElement.style.borderLeft = '4px solid rgba(34,197,94,0.6)';
-      });
-      document.getElementById('score2').innerHTML = `<div class="result ok" style="padding:8px;border-radius:8px">${allTargets.length} / ${allTargets.length}</div>`;
-      document.getElementById('global-feedback').innerHTML = `<div class="small">已显示所有参考答案。</div>`;
-    });
-
-    document.getElementById('resetAll').addEventListener('click', () => {
-      document.getElementById('reset1').click();
-      document.getElementById('reset2').click();
-      document.getElementById('global-feedback').innerHTML = '';
-      document.querySelectorAll('.target-block').forEach(b => b.style.borderLeft='none');
-    });
-
-    // util
-    function setsEqual(a,b){
-      if (a.size !== b.size) return false;
-      for (let x of a) if (!b.has(x)) return false;
-      return true;
-    }
-
-    // Accessibility: allow tapping outer label toggles checkbox (already via label)
-    // End of script
   </script>
 </body>
 </html>
