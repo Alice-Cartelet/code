@@ -3,86 +3,47 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>生物化学抑制剂对应练习</title>
+  <title>生物化学抑制剂练习（手机优化）</title>
   <style>
     :root{
       --bg:#0f1724;
-      --card:#0b1220;
       --accent:#60a5fa;
-      --muted:#9ca3af;
       --ok:#22c55e;
       --err:#ef4444;
       --glass: rgba(255,255,255,0.03);
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial;
     }
-    html,body{height:100%;}
-    body{
-      margin:0;
-      background:linear-gradient(180deg,#071026 0%, #071a2a 60%);
-      color:#e6eef8;
-      -webkit-font-smoothing:antialiased;
-      padding:16px;
-    }
-    .container{max-width:920px;margin:0 auto;}
-    header{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
-    header h1{font-size:20px;margin:0;}
-    header p{margin:0;color:var(--muted);font-size:13px;}
-    .card{
-      background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));
-      border-radius:12px;
-      padding:14px;
-      margin-bottom:12px;
-      box-shadow:0 6px 18px rgba(2,6,23,0.6);
-      border:1px solid rgba(255,255,255,0.03);
-    }
-    .inhibitor-row{
-      display:flex;
-      gap:8px;
-      align-items:center;
-      padding:8px;
-      border-radius:10px;
-      background:var(--glass);
-      margin-bottom:8px;
-    }
-    .inhibitor-name{min-width:110px;flex:0 0 auto;font-weight:600;font-size:15px;color:#d9f2ff;}
-    .mechanism-select{flex:1 1 auto;}
-    label{display:block;font-size:14px;margin-bottom:6px;}
-    select{font-size:15px;}
-    .controls{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
-    .btn{
-      background:var(--accent);
-      color:#01203a;
-      border:none;
-      padding:10px 12px;
-      border-radius:10px;
-      font-weight:700;
-      cursor:pointer;
-      box-shadow:0 6px 14px rgba(96,165,250,0.12);
-    }
-    .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);}
-    .result{margin-top:10px;padding:10px;border-radius:10px;font-weight:700;}
-    .result.ok{background:rgba(34,197,94,0.12);color:var(--ok);}
-    .result.err{background:rgba(239,68,68,0.08);color:var(--err);}
-    .small{font-size:13px;color:var(--muted);}
-    .answer-tag{display:inline-block;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.02);margin-left:8px;font-size:12px;color:var(--muted);}
+    html,body{height:100%; margin:0; background:#071026; color:#e6eef8; -webkit-font-smoothing:antialiased; padding:12px;}
+    .container{max-width:600px; margin:0 auto;}
+    header h1{font-size:20px;margin-bottom:4px;}
+    header p{font-size:13px; color:#9ca3af;}
+    .card{background:rgba(255,255,255,0.02); border-radius:12px; padding:16px; margin-bottom:16px;}
+    .inhibitor-row{display:flex; flex-direction:column; margin-bottom:16px; padding:12px; border-radius:10px; background:var(--glass);}
+    .inhibitor-name{font-size:16px; font-weight:600; margin-bottom:8px;}
+    select{width:100%; padding:12px; font-size:16px; border-radius:8px; border:1px solid rgba(255,255,255,0.04); background:transparent; color:inherit;}
+    .controls{display:flex; flex-direction:column; gap:10px; margin-top:8px;}
+    .btn{width:100%; padding:12px; font-size:16px; border-radius:10px; border:none; font-weight:700; cursor:pointer; background:var(--accent); color:#01203a;}
+    .btn.secondary{background:transparent; border:1px solid rgba(255,255,255,0.06); color:#9ca3af;}
+    .result{padding:10px; border-radius:10px; font-weight:700; margin-top:8px;}
+    .result.ok{background:rgba(34,197,94,0.12); color:var(--ok);}
+    .result.err{background:rgba(239,68,68,0.08); color:var(--err);}
+    .answer-tag{display:inline-block; margin-top:6px; padding:6px 8px; font-size:12px; background:rgba(255,255,255,0.02); border-radius:8px; color:#9ca3af;}
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <div>
-        <h1>生物化学：抑制剂对应练习</h1>
-        <p class="small">powered by Alice-Cartelet</p>
-      </div>
+      <h1>生物化学：抑制剂对应练习</h1>
+      <p>单选，选择后自动去除已选机制</p>
     </header>
 
     <div class="card" id="part1">
       <label style="font-size:15px;font-weight:800;">为每个抑制剂选择主要的<strong>作用机制</strong></label>
-      <div id="part1-list" style="margin-top:8px;"></div>
+      <div id="part1-list" style="margin-top:12px;"></div>
       <div class="controls">
         <button class="btn" id="check1">批改</button>
         <button class="btn secondary" id="reset1">重置</button>
-        <div id="score1" style="margin-left:auto"></div>
+        <div id="score1"></div>
       </div>
     </div>
   </div>
@@ -113,14 +74,13 @@
     const mechanisms = Array.from(new Set(inhibitors.map(i=>i.mechanism))).sort();
     const part1List = document.getElementById('part1-list');
 
-    // 动态生成题目
+    // 创建下拉行
     inhibitors.forEach(inh=>{
       const row=document.createElement('div');
       row.className='inhibitor-row';
       row.innerHTML=`
         <div class="inhibitor-name">${inh.name}</div>
         <div class="mechanism-select">
-          <label class="small" for="sel-${inh.id}">选择机制</label>
           <select id="sel-${inh.id}" data-id="${inh.id}">
             <option value="">--请选择--</option>
           </select>
@@ -128,6 +88,7 @@
       part1List.appendChild(row);
     });
 
+    // 刷新下拉选项，已选的去掉
     function refreshSelectOptions(){
       const selected=Array.from(document.querySelectorAll('select'))
         .map(s=>s.value)
@@ -138,54 +99,43 @@
         mechanisms.forEach(m=>{
           if(!selected.includes(m)||m===val){
             const o=document.createElement('option');
-            o.value=m;
-            o.textContent=m;
+            o.value=m; o.textContent=m;
             if(m===val)o.selected=true;
             sel.appendChild(o);
           }
         });
       });
     }
-
-    // 初始化选项
     refreshSelectOptions();
+    document.querySelectorAll('select').forEach(sel=>sel.addEventListener('change',refreshSelectOptions));
 
-    // 每次选择更新所有下拉选项
-    document.querySelectorAll('select').forEach(sel=>{
-      sel.addEventListener('change',refreshSelectOptions);
-    });
-
-    // 批改
+    // 批改+打分
     document.getElementById('check1').addEventListener('click',()=>{
       let correct=0,total=inhibitors.length;
       inhibitors.forEach(inh=>{
         const sel=document.getElementById(`sel-${inh.id}`);
         const parent=sel.parentElement;
-        const old=parent.querySelector('.answer-tag');
-        if(old)old.remove();
+        const old=parent.querySelector('.answer-tag'); if(old)old.remove();
         sel.style.borderColor='';
         if(sel.value===inh.mechanism){
-          correct++;
-          sel.style.borderColor='rgba(34,197,94,0.6)';
+          correct++; sel.style.borderColor='rgba(34,197,94,0.6)';
         }else{
           sel.style.borderColor='rgba(239,68,68,0.6)';
-          const tag=document.createElement('span');
-          tag.className='answer-tag';
+          const tag=document.createElement('span'); tag.className='answer-tag';
           tag.textContent='答案: '+inh.mechanism;
           parent.appendChild(tag);
         }
       });
       const score=document.getElementById('score1');
-      score.innerHTML=`<div class="result ${correct===total?'ok':'err'}">${correct} / ${total}</div>`;
+      const percent = Math.round(correct/total*100);
+      score.innerHTML=`<div class="result ${correct===total?'ok':'err'}">${correct} / ${total} （${percent}%）</div>`;
     });
 
     // 重置
     document.getElementById('reset1').addEventListener('click',()=>{
       document.querySelectorAll('select').forEach(sel=>{
-        sel.value='';
-        sel.style.borderColor='';
-        const tag=sel.parentElement.querySelector('.answer-tag');
-        if(tag)tag.remove();
+        sel.value=''; sel.style.borderColor='';
+        const tag=sel.parentElement.querySelector('.answer-tag'); if(tag)tag.remove();
       });
       document.getElementById('score1').innerHTML='';
       refreshSelectOptions();
