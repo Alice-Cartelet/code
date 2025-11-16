@@ -74,8 +74,21 @@
     const mechanisms = Array.from(new Set(inhibitors.map(i=>i.mechanism))).sort();
     const part1List = document.getElementById('part1-list');
 
-    // 创建下拉行
-    inhibitors.forEach(inh=>{
+    // 洗牌函数
+    function shuffle(array){
+      let arr = array.slice();
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // 随机化题目顺序
+    const shuffledInhibitors = shuffle(inhibitors);
+
+    // 创建题目（随机顺序）
+    shuffledInhibitors.forEach(inh=>{
       const row=document.createElement('div');
       row.className='inhibitor-row';
       row.innerHTML=`
@@ -88,7 +101,7 @@
       part1List.appendChild(row);
     });
 
-    // 刷新下拉选项，已选的去掉
+    // 刷新下拉选项（不变）
     function refreshSelectOptions(){
       const selected=Array.from(document.querySelectorAll('select'))
         .map(s=>s.value)
@@ -109,7 +122,7 @@
     refreshSelectOptions();
     document.querySelectorAll('select').forEach(sel=>sel.addEventListener('change',refreshSelectOptions));
 
-    // 批改+打分
+    // 批改
     document.getElementById('check1').addEventListener('click',()=>{
       let correct=0,total=inhibitors.length;
       inhibitors.forEach(inh=>{
@@ -131,7 +144,7 @@
       score.innerHTML=`<div class="result ${correct===total?'ok':'err'}">${correct} / ${total} （${percent}%）</div>`;
     });
 
-    // 重置
+    // 重置（不重新洗牌）
     document.getElementById('reset1').addEventListener('click',()=>{
       document.querySelectorAll('select').forEach(sel=>{
         sel.value=''; sel.style.borderColor='';
