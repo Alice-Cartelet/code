@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>氨基酸三字母缩写 ↔ 中文 对应检测（20题）</title>
+<style>
+  :root{
+    --bg1:#0f172a;
+    --bg2:#071033;
+    --card:#0b1220;
+    --accent: #7DD3FC;
+    --accent2:#7C3AED;
+    --muted:#94a3b8;
+    --correct:#16a34a;
+    --wrong:#ef4444;
+    --glass: rgba(255,255,255,0.04);
+  }
+  *{box-sizing:border-box;font-family:Inter, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
+  html,body{height:100%;margin:0;background:linear-gradient(135deg,var(--bg1),var(--bg2));color:#e6eef8;}
+  .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px;}
+  .container{
+    width:100%;max-width:960px;background:linear-gradient(180deg,rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:14px;padding:22px;box-shadow:0 10px 40px rgba(2,6,23,0.6);backdrop-filter: blur(6px);
+    position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.03);
+  }
+
+  header{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+  .logo{
+    width:56px;height:56px;border-radius:12px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    display:flex;align-items:center;justify-content:center;font-weight:700;color:#031124;box-shadow:0 6px 20px rgba(124,58,237,0.18);
+    transform:rotate(-8deg);
+  }
+  h1{font-size:20px;margin:0;}
+  .sub{color:var(--muted);font-size:13px;margin-top:4px;}
+
+  .topbar{display:flex;align-items:center;gap:12px;margin-bottom:18px;justify-content:space-between;}
+  .progress{
+    flex:1;margin-left:8px;height:12px;background:rgba(255,255,255,0.04);border-radius:999px;overflow:hidden;
+  }
+  .progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%;transition:width .5s cubic-bezier(.22,.9,.2,1);}
+  .info{display:flex;gap:10px;align-items:center;color:var(--muted);font-size:13px;}
+  .score-pill{background:var(--glass);padding:6px 10px;border-radius:999px;font-weight:600;}
+
+  main{display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start;}
+  @media (max-width:900px){ main{grid-template-columns:1fr; } .side{order:2;} }
+
+  .card{
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,0.03);
+    box-shadow: 0 6px 20px rgba(2,6,23,0.6);
+  }
+
+  .question-area{min-height:200px;display:flex;flex-direction:column;gap:12px;}
+  .qmeta{display:flex;justify-content:space-between;align-items:center;}
+  .qcard{
+    background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
+    border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:8px;transition:transform .45s cubic-bezier(.2,.9,.2,1);
+    transform-origin:center left;border:1px solid rgba(255,255,255,0.02);
+  }
+  .qtext{font-size:22px;font-weight:700;letter-spacing:0.6px;}
+  .hint{color:var(--muted);font-size:13px;}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;}
+  .opt{
+    background:rgba(255,255,255,0.02);padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);
+    cursor:pointer;user-select:none;transition:transform .12s ease, box-shadow .12s ease, background .18s;
+    display:flex;align-items:center;justify-content:center;font-weight:600;
+  }
+  .opt:hover{transform:translateY(-4px);box-shadow:0 10px 30px rgba(2,6,23,0.5);}
+  .opt.correct{background:linear-gradient(90deg, rgba(22,163,74,0.12), rgba(22,163,74,0.06));border-color:rgba(22,163,74,0.26);box-shadow:0 6px 24px rgba(16,185,129,0.06);}
+  .opt.wrong{background:linear-gradient(90deg, rgba(239,68,68,0.08), rgba(239,68,68,0.02));border-color:rgba(239,68,68,0.22);box-shadow:0 6px 24px rgba(239,68,68,0.04);}
+  .opt.disabled{pointer-events:none;opacity:0.86;}
+
+  .side{position:relative;}
+  .stats{display:flex;flex-direction:column;gap:12px;}
+  .stat-item{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.01));padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);}
+  .bigscore{font-size:40px;font-weight:800;line-height:1;color:var(--accent);}
+  .small{color:var(--muted);font-size:13px;}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;}
+  button.btn{background:linear-gradient(90deg,var(--accent),var(--accent2));border:0;padding:10px 12px;border-radius:10px;color:#041025;font-weight:700;cursor:pointer;box-shadow:0 8px 30px rgba(124,58,237,0.12);}
+  button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--accent);font-weight:700;padding:10px 12px;border-radius:10px;cursor:pointer;}
+  footer{margin-top:14px;color:var(--muted);font-size:13px;text-align:center;}
+
+  /* transitions / little animations */
+  .qcard.flip{transform:rotateY(6deg) translateX(6px) scale(1.01);}
+  .pulse { animation: pop .6s cubic-bezier(.2,.9,.2,1); }
+  @keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.03)} 100%{transform:scale(1)} }
+
+  /* results modal */
+  .result{
+    position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.95);min-width:320px;max-width:90%;
+    z-index:80;padding:18px;border-radius:12px;background:linear-gradient(180deg,#071227, #03102b);border:1px solid rgba(255,255,255,0.03);
+    box-shadow:0 30px 80px rgba(2,6,23,0.65);display:none;flex-direction:column;gap:12px;
+  }
+  .result.show{display:flex;animation:popUp .35s ease both;}
+  @keyframes popUp { from{opacity:0; transform:translate(-50%,-50%) scale(.92);} to{opacity:1; transform:translate(-50%,-50%) scale(1);} }
+
+  /* confetti canvas */
+  canvas#confetti{position:fixed;left:0;top:0;pointer-events:none;z-index:70;mix-blend-mode:screen;}
+  .question-index{font-weight:700;color:var(--muted);font-size:13px;}
+  .answer-row{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px dashed rgba(255,255,255,0.02);}
+  .mini-pill{background:rgba(255,255,255,0.02);padding:6px 10px;border-radius:999px;font-weight:600;}
+  .detail-correct{color:var(--correct);font-weight:700;}
+  .detail-wrong{color:var(--wrong);font-weight:700;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="container" role="application" aria-labelledby="title">
+    <header>
+      <div class="logo">AA</div>
+      <div>
+        <h1 id="title">氨基酸三字母缩写 ↔ 中文 对应检测</h1>
+        <div class="sub">以选择题形式考察：请从 3 字母缩写选出对应的中文名称（共 20 题）</div>
+      </div>
+    </header>
+
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px;flex:1;">
+        <div class="question-index" id="qIndex">第 1 / 20 题</div>
+        <div class="progress" aria-hidden="true"><i id="progBar"></i></div>
+      </div>
+      <div class="info">
+        <div class="score-pill">得分：<span id="score">0</span></div>
+        <div class="small" id="timer">用时：00:00</div>
+      </div>
+    </div>
+
+    <main>
+      <section class="card question-card">
+        <div class="question-area">
+          <div class="qmeta">
+            <div class="hint" id="hint">选择正确的中文对应</div>
+            <div class="mini-pill" id="currentType">测试类型：缩写 → 中文</div>
+          </div>
+
+          <div class="qcard" id="qcard" aria-live="polite">
+            <div class="qtext" id="qtext">ALA</div>
+            <div class="hint">三字母缩写 (大写)。请选择下面哪个中文名是它对应的氨基酸。</div>
+
+            <div class="opts" id="opts" role="list">
+              <!-- options injected here -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="side">
+        <div class="stats">
+          <div class="stat-item">
+            <div class="small">当前进度</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
+              <div style="flex:1;margin-right:12px;">
+                <div style="height:10px;background:rgba(255,255,255,0.02);border-radius:999px;overflow:hidden;">
+                  <div id="miniProg" style="height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .4s;"></div>
+                </div>
+              </div>
+              <div class="small" id="qcount">1 / 20</div>
+            </div>
+          </div>
+
+          <div class="stat-item">
+            <div class="small">实时得分</div>
+            <div class="bigscore" id="bigscore">0</div>
+            <div class="small">正确：<span id="correctCount">0</span> &nbsp; 错误：<span id="wrongCount">0</span></div>
+            <div class="controls">
+              <button class="btn" id="skipBtn">跳过（计为错）</button>
+              <button class="ghost" id="restartBtn">重新开始</button>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+</div>
+
+<!-- result box -->
+<div class="result" id="resultBox" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <div>
+      <div id="resultTitle" style="font-size:18px;font-weight:800">测试完成</div>
+      <div class="small" id="resultSub">下面是本次测试结果</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:28px;font-weight:900;color:var(--accent)" id="finalScore">0 / 20</div>
+      <div class="small" id="percent">0%</div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:12px;align-items:center;">
+    <button class="btn" id="retryBtn">再来一次</button>
+    <button class="ghost" id="reviewBtn">查看答题明细</button>
+  </div>
+
+  <div id="details" style="display:none;max-height:360px;overflow:auto;padding-top:8px;">
+    <!-- per-question details -->
+  </div>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<script>
+/*
+  Amino acid quiz (3-letter code -> Chinese)
+  20 amino acids included.
+*/
+
+const AMINO = [
+  {code:'Ala', name:'丙氨酸'},
+  {code:'Arg', name:'精氨酸'},
+  {code:'Asn', name:'天冬酰胺'},
+  {code:'Asp', name:'天冬氨酸'},
+  {code:'Cys', name:'半胱氨酸'},
+  {code:'Gln', name:'谷氨酰胺'},
+  {code:'Glu', name:'谷氨酸'},
+  {code:'Gly', name:'甘氨酸'},
+  {code:'His', name:'组氨酸'},
+  {code:'Ile', name:'异亮氨酸'},
+  {code:'Leu', name:'亮氨酸'},
+  {code:'Lys', name:'赖氨酸'},
+  {code:'Met', name:'蛋氨酸'},
+  {code:'Phe', name:'苯丙氨酸'},
+  {code:'Pro', name:'脯氨酸'},
+  {code:'Ser', name:'丝氨酸'},
+  {code:'Thr', name:'苏氨酸'},
+  {code:'Trp', name:'色氨酸'},
+  {code:'Tyr', name:'酪氨酸'},
+  {code:'Val', name:'缬氨酸'},
+];
+
+let questions = []; // shuffled copy
+let index = 0;
+let score = 0;
+let correct = 0;
+let wrong = 0;
+let startTime = null;
+let answers = []; // store {q, correctName, chosen, ok}
+
+const qIndexEl = document.getElementById('qIndex');
+const progBar = document.getElementById('progBar');
+const qtext = document.getElementById('qtext');
+const optsEl = document.getElementById('opts');
+const scoreEl = document.getElementById('score');
+const bigscoreEl = document.getElementById('bigscore');
+const correctCountEl = document.getElementById('correctCount');
+const wrongCountEl = document.getElementById('wrongCount');
+const miniProg = document.getElementById('miniProg');
+const qcount = document.getElementById('qcount');
+const qcard = document.getElementById('qcard');
+const timerEl = document.getElementById('timer');
+
+const skipBtn = document.getElementById('skipBtn');
+const restartBtn = document.getElementById('restartBtn');
+const resultBox = document.getElementById('resultBox');
+const finalScore = document.getElementById('finalScore');
+const percentEl = document.getElementById('percent');
+const retryBtn = document.getElementById('retryBtn');
+const reviewBtn = document.getElementById('reviewBtn');
+const detailsEl = document.getElementById('details');
+
+const confettiCanvas = document.getElementById('confetti');
+const ctx = confettiCanvas.getContext('2d');
+let confettiParticles = [];
+
+function resizeCanvas(){
+  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+// utils
+function shuffle(a){
+  const arr = a.slice();
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+function pickN(arr,n,excludeIndex=null){
+  const pool = arr.map((v,i)=>i===excludeIndex?null:v).filter(Boolean);
+  return shuffle(pool).slice(0,n);
+}
+
+function start(){
+  questions = shuffle(AMINO.slice());
+  index = 0; score = 0; correct = 0; wrong = 0;
+  answers = [];
+  startTime = Date.now();
+  updateUI();
+  renderQuestion();
+  startTimer();
+  resultBox.classList.remove('show');
+  detailsEl.style.display='none';
+  stopConfetti();
+}
+
+// timer display
+let timerInterval = null;
+function startTimer(){
+  if(timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(()=>{
+    const s = Math.floor((Date.now()-startTime)/1000);
+    const mm = String(Math.floor(s/60)).padStart(2,'0');
+    const ss = String(s%60).padStart(2,'0');
+    timerEl.textContent = `用时：${mm}:${ss}`;
+  }, 500);
+}
+
+function stopTimer(){
+  if(timerInterval){ clearInterval(timerInterval); timerInterval = null; }
+}
+
+// render
+function updateUI(){
+  qIndexEl.textContent = `第 ${Math.min(index+1,20)} / 20 题`;
+  qcount.textContent = `${Math.min(index+1,20)} / 20`;
+  const percent = Math.round((index/20)*100);
+  progBar.style.width = `${(index/20)*100}%`;
+  miniProg.style.width = `${(index/20)*100}%`;
+  scoreEl.textContent = `${score}`;
+  bigscoreEl.textContent = score;
+  correctCountEl.textContent = correct;
+  wrongCountEl.textContent = wrong;
+}
+
+function renderQuestion(){
+  if(index>=20){
+    finish();
+    return;
+  }
+  updateUI();
+  const q = questions[index];
+  qtext.textContent = q.code.toUpperCase();
+  qcard.classList.remove('flip'); void qcard.offsetWidth; qcard.classList.add('flip');
+
+  // build options: correct + 3 random others
+  const others = shuffle(AMINO.filter(a => a.code !== q.code)).slice(0,3);
+  const options = shuffle([q, ...others]);
+
+  optsEl.innerHTML = '';
+  options.forEach(opt=>{
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.type = 'button';
+    btn.textContent = opt.name;
+    btn.setAttribute('data-code', opt.code);
+    btn.addEventListener('click', () => handleChoice(btn, opt.name));
+    optsEl.appendChild(btn);
+  });
+}
+
+let lock = false;
+function handleChoice(btn, chosenName){
+  if(lock) return;
+  lock = true;
+  // disable all options
+  const all = [...optsEl.querySelectorAll('.opt')];
+  all.forEach(el=>el.classList.add('disabled'));
+
+  const q = questions[index];
+  const correctName = q.name;
+  const isOk = chosenName === correctName;
+
+  if(isOk){
+    score += 1;
+    correct += 1;
+    btn.classList.add('correct');
+  } else {
+    wrong += 1;
+    btn.classList.add('wrong');
+    // highlight correct one
+    const correctBtn = all.find(el => el.textContent === correctName);
+    if(correctBtn) correctBtn.classList.add('correct');
+  }
+
+  answers.push({code:q.code, correctName, chosen:chosenName, ok:isOk});
+  updateUI();
+
+  // small delay then next
+  setTimeout(()=>{ index++; lock=false; renderQuestion(); }, 700);
+}
+
+skipBtn.addEventListener('click', ()=>{
+  if(lock) return;
+  // mark as wrong and go next
+  lock = true;
+  const q = questions[index];
+  wrong += 1;
+  answers.push({code:q.code, correctName:q.name, chosen:null, ok:false});
+  updateUI();
+  // briefly highlight correct
+  const all = [...optsEl.querySelectorAll('.opt')];
+  const correctBtn = all.find(el => el.textContent === q.name);
+  if(correctBtn) correctBtn.classList.add('correct');
+  all.forEach(el=>el.classList.add('disabled'));
+  setTimeout(()=>{ index++; lock=false; renderQuestion(); }, 700);
+});
+
+restartBtn.addEventListener('click', ()=>{
+  if(confirm('确定要重新开始测试吗？当前进度将丢失。')) start();
+});
+
+retryBtn.addEventListener('click', ()=>{ start(); });
+
+reviewBtn.addEventListener('click', ()=>{
+  detailsEl.innerHTML = '';
+  answers.forEach((a,i)=>{
+    const row = document.createElement('div');
+    row.className = 'answer-row';
+    row.innerHTML = `
+      <div style="min-width:140px;font-weight:700">${i+1}. ${a.code.toUpperCase()}</div>
+      <div style="flex:1">${a.chosen ? a.chosen : '<span style="color:var(--muted)">跳过/未选</span>'}</div>
+      <div style="width:140px;text-align:right">${a.ok ? '<span class="detail-correct">正确</span>' : '<span class="detail-wrong">错误</span>'}<div style="font-size:12px;color:var(--muted);margin-top:6px">答案：${a.correctName}</div></div>
+    `;
+    detailsEl.appendChild(row);
+  });
+  detailsEl.style.display = detailsEl.style.display === 'none' ? 'block' : 'none';
+});
+
+// finish
+function finish(){
+  stopTimer();
+  // compute final
+  finalScore.textContent = `${score} / 20`;
+  const percent = Math.round((score/20)*100);
+  percentEl.textContent = `${percent}%`;
+  resultBox.classList.add('show');
+
+  // show confetti for decent score
+  if(score >= 12) startConfetti(Math.min(200, 30 + score*8));
+  else stopConfetti();
+}
+
+// confetti (simple)
+function random(min,max){ return Math.random()*(max-min)+min; }
+function startConfetti(n=150){
+  confettiParticles = [];
+  for(let i=0;i<n;i++){
+    confettiParticles.push({
+      x: random(0, confettiCanvas.width),
+      y: random(-confettiCanvas.height, 0),
+      vx: random(-1.2, 1.2),
+      vy: random(2, 6),
+      r: random(4,9),
+      color: `hsl(${Math.floor(random(0,360))}deg 80% 60%)`,
+      rot: random(0,360),
+      d: random(0.5,1.5),
+    });
+  }
+  confettiLoop();
+  confettiPlaying = true;
+}
+let confettiPlaying = false;
+function stopConfetti(){
+  confettiParticles = [];
+  confettiPlaying = false;
+  clearCanvas();
+}
+function clearCanvas(){ ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height); }
+
+function confettiLoop(){
+  if(!confettiPlaying && confettiParticles.length===0) return;
+  ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
+  confettiParticles.forEach((p,i)=>{
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.04 * p.d;
+    p.rot += 6;
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot * Math.PI/180);
+    ctx.fillStyle = p.color;
+    ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r*0.6);
+    ctx.restore();
+    if(p.y > confettiCanvas.height + 20){ // respawn
+      p.x = random(0, confettiCanvas.width);
+      p.y = -10;
+      p.vx = random(-1.2, 1.2);
+      p.vy = random(2,6);
+    }
+  });
+  requestAnimationFrame(confettiLoop);
+}
+
+// initial start
+start();
+
+// small accessibility: keyboard support for options
+document.addEventListener('keydown', (e)=>{
+  if(document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('opt')){
+    if(e.key === 'Enter' || e.key === ' ') document.activeElement.click();
+  } else {
+    // number keys 1-4 map to options
+    if(e.key >= '1' && e.key <= '4'){
+      const opts = [...optsEl.querySelectorAll('.opt')];
+      const idx = parseInt(e.key)-1;
+      if(opts[idx]) opts[idx].click();
+    }
+  }
+});
+
+</script>
+</body>
+</html>

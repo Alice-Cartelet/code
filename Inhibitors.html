@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>生物化学抑制剂练习</title>
+  <style>
+    :root{
+      --bg:#0f1724;
+      --accent:#60a5fa;
+      --ok:#22c55e;
+      --err:#ef4444;
+      --glass: rgba(255,255,255,0.03);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+    }
+    html,body{height:100%; margin:0; background:#071026; color:#e6eef8; -webkit-font-smoothing:antialiased; padding:12px;}
+    .container{max-width:600px; margin:0 auto;}
+    header h1{font-size:20px;margin-bottom:4px;}
+    header p{font-size:13px; color:#9ca3af;}
+    .card{background:rgba(255,255,255,0.02); border-radius:12px; padding:16px; margin-bottom:16px;}
+    .inhibitor-row{display:flex; flex-direction:column; margin-bottom:16px; padding:12px; border-radius:10px; background:var(--glass);}
+    .inhibitor-name{font-size:16px; font-weight:600; margin-bottom:8px;}
+    select{width:100%; padding:12px; font-size:16px; border-radius:8px; border:1px solid rgba(255,255,255,0.04); background:transparent; color:inherit;}
+    .controls{display:flex; flex-direction:column; gap:10px; margin-top:8px;}
+    .btn{width:100%; padding:12px; font-size:16px; border-radius:10px; border:none; font-weight:700; cursor:pointer; background:var(--accent); color:#01203a;}
+    .btn.secondary{background:transparent; border:1px solid rgba(255,255,255,0.06); color:#9ca3af;}
+    .result{padding:10px; border-radius:10px; font-weight:700; margin-top:8px;}
+    .result.ok{background:rgba(34,197,94,0.12); color:var(--ok);}
+    .result.err{background:rgba(239,68,68,0.08); color:var(--err);}
+    .answer-tag{display:inline-block; margin-top:6px; padding:6px 8px; font-size:12px; background:rgba(255,255,255,0.02); border-radius:8px; color:#9ca3af;}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>生物化学：抑制剂对应练习</h1>
+      <p>powered by Alice-Cartelet</p>
+    </header>
+
+    <div class="card" id="part1">
+      <label style="font-size:15px;font-weight:800;">为每个抑制剂选择主要的<strong>作用机制</strong></label>
+      <div id="part1-list" style="margin-top:12px;"></div>
+      <div class="controls">
+        <button class="btn" id="check1">批改</button>
+        <button class="btn secondary" id="reset1">重置</button>
+        <div id="score1"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const inhibitors = [
+      {id:'rif',name:'利福霉素 (Rifamycin)',mechanism:'抑制RNA聚合酶，阻断转录'},
+      {id:'actd',name:'放线菌酮 (Actinomycin D)',mechanism:'嵌入DNA，阻断转录延长'},
+      {id:'aman',name:'α-鹅膏蕈碱 (α-Amanitin)',mechanism:'抑制真核RNA聚合酶 II'},
+      {id:'aminogly',name:'氨基糖苷类（链霉素、新霉素等）',mechanism:'结合30S，导致mRNA误读或阻断起始'},
+      {id:'tet',name:'四环素 (Tetracycline)',mechanism:'阻止tRNA进入A位点'},
+      {id:'chlor',name:'氯霉素 (Chloramphenicol)',mechanism:'抑制肽酰转移反应'},
+      {id:'mac',name:'大环内酯类（红霉素、麦迪霉素等）',mechanism:'结合50S，阻断肽链延长或转位'},
+      {id:'fus',name:'梭链孢酸 (Fusidic acid)',mechanism:'抑制延伸因子EF-G作用'},
+      {id:'chx',name:'环己酰亚胺 (Cycloheximide)',mechanism:'抑制真核翻译延长'},
+      {id:'puro',name:'普鲁霉素 (Puromycin)',mechanism:'模拟tRNA引起提前终止'},
+      {id:'ricin',name:'蓖麻毒素 (Ricin)',mechanism:'破坏rRNA，抑制翻译'},
+      {id:'dtx',name:'白喉毒素 (Diphtheria toxin)',mechanism:'使EF-2失活，阻断翻译'},
+      {id:'5fu',name:'氟尿嘧啶 (5-FU)',mechanism:'抑制胸苷酸合成酶，阻断DNA合成'},
+      {id:'mtx',name:'甲氨蝶呤 (Methotrexate)',mechanism:'抑制二氢叶酸还原酶，阻断核苷酸合成'},
+      {id:'rot',name:'鱼藤酮 (Rotenone)',mechanism:'抑制呼吸链复合体I'},
+      {id:'ant',name:'抗霉素A (Antimycin A)',mechanism:'抑制呼吸链复合体III'},
+      {id:'cn',name:'氰化物 (Cyanide)',mechanism:'抑制呼吸链复合体IV'},
+      {id:'olig',name:'寡霉素 (Oligomycin)',mechanism:'抑制ATP合酶，阻止ATP生成'},
+      {id:'dnp',name:'2,4-二硝基苯酚 (DNP)',mechanism:'解偶联氧化磷酸化'}
+    ];
+
+    const mechanisms = Array.from(new Set(inhibitors.map(i=>i.mechanism))).sort();
+    const part1List = document.getElementById('part1-list');
+
+    // 洗牌函数
+    function shuffle(array){
+      let arr = array.slice();
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // 随机化题目顺序
+    const shuffledInhibitors = shuffle(inhibitors);
+
+    // 创建题目（随机顺序）
+    shuffledInhibitors.forEach(inh=>{
+      const row=document.createElement('div');
+      row.className='inhibitor-row';
+      row.innerHTML=`
+        <div class="inhibitor-name">${inh.name}</div>
+        <div class="mechanism-select">
+          <select id="sel-${inh.id}" data-id="${inh.id}">
+            <option value="">--请选择--</option>
+          </select>
+        </div>`;
+      part1List.appendChild(row);
+    });
+
+    // 刷新下拉选项（不变）
+    function refreshSelectOptions(){
+      const selected=Array.from(document.querySelectorAll('select'))
+        .map(s=>s.value)
+        .filter(v=>v!=='');
+      document.querySelectorAll('select').forEach(sel=>{
+        const val=sel.value;
+        sel.innerHTML='<option value="">--请选择--</option>';
+        mechanisms.forEach(m=>{
+          if(!selected.includes(m)||m===val){
+            const o=document.createElement('option');
+            o.value=m; o.textContent=m;
+            if(m===val)o.selected=true;
+            sel.appendChild(o);
+          }
+        });
+      });
+    }
+    refreshSelectOptions();
+    document.querySelectorAll('select').forEach(sel=>sel.addEventListener('change',refreshSelectOptions));
+
+    // 批改
+    document.getElementById('check1').addEventListener('click',()=>{
+      let correct=0,total=inhibitors.length;
+      inhibitors.forEach(inh=>{
+        const sel=document.getElementById(`sel-${inh.id}`);
+        const parent=sel.parentElement;
+        const old=parent.querySelector('.answer-tag'); if(old)old.remove();
+        sel.style.borderColor='';
+        if(sel.value===inh.mechanism){
+          correct++; sel.style.borderColor='rgba(34,197,94,0.6)';
+        }else{
+          sel.style.borderColor='rgba(239,68,68,0.6)';
+          const tag=document.createElement('span'); tag.className='answer-tag';
+          tag.textContent='答案: '+inh.mechanism;
+          parent.appendChild(tag);
+        }
+      });
+      const score=document.getElementById('score1');
+      const percent = Math.round(correct/total*100);
+      score.innerHTML=`<div class="result ${correct===total?'ok':'err'}">${correct} / ${total} （${percent}%）</div>`;
+    });
+
+    // 重置（不重新洗牌）
+    document.getElementById('reset1').addEventListener('click',()=>{
+      document.querySelectorAll('select').forEach(sel=>{
+        sel.value=''; sel.style.borderColor='';
+        const tag=sel.parentElement.querySelector('.answer-tag'); if(tag)tag.remove();
+      });
+      document.getElementById('score1').innerHTML='';
+      refreshSelectOptions();
+    });
+  </script>
+</body>
+</html>
