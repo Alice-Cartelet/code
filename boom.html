@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>炸弹倒计时</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: sans-serif;
+        }
+
+        button {
+            font-size: 24px;
+            padding: 15px 40px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<button id="startBtn">开始</button>
+
+<script>
+    const startBtn = document.getElementById("startBtn");
+
+    function playExplosionSound() {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        // 创建噪声
+        const bufferSize = audioCtx.sampleRate;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1; // 白噪声
+        }
+
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+
+        // 滤波器（更像爆炸）
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = "lowpass";
+        filter.frequency.value = 800;
+
+        // 音量控制（快速衰减）
+        const gainNode = audioCtx.createGain();
+        gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
+
+        noise.connect(filter);
+        filter.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        noise.start();
+        noise.stop(audioCtx.currentTime + 0.6);
+    }
+
+    startBtn.onclick = () => {
+        startBtn.style.display = "none";
+
+        // 0–20 秒随机（毫秒）
+        const randomTime = Math.random() * 20000;
+
+        setTimeout(() => {
+            playExplosionSound();
+            startBtn.style.display = "block";
+        }, randomTime);
+    };
+</script>
+
+</body>
+</html>
