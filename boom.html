@@ -9,9 +9,6 @@
     body {
         margin: 0;
         height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
         background: #111;
         color: white;
         font-family: -apple-system, BlinkMacSystemFont, sans-serif;
@@ -19,23 +16,27 @@
     }
 
     #container {
-        text-align: center;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
         z-index: 10;
     }
 
     button {
-        font-size: 22px;
-        padding: 14px 40px;
+        font-size: 24px;
+        padding: 16px 46px;
         border: none;
-        border-radius: 10px;
+        border-radius: 12px;
         background: #ff3b30;
         color: white;
         cursor: pointer;
     }
 
     #status {
-        font-size: 24px;
-        margin-top: 20px;
+        font-size: 26px;
+        margin-top: 24px;
         display: none;
     }
 
@@ -76,11 +77,18 @@ const startBtn = document.getElementById("startBtn");
 const statusText = document.getElementById("status");
 const flash = document.getElementById("flash");
 
+const FIXED_TIME = 15000; // 🔥 固定 15 秒
+
+function requestFullScreen() {
+    const el = document.documentElement;
+    if (el.requestFullscreen) el.requestFullscreen();
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+}
+
 function playExplosion() {
     const ctx = audioCtx;
 
-    // === 噪声 ===
-    const bufferSize = ctx.sampleRate * 1.2; // 声音更长
+    const bufferSize = ctx.sampleRate * 1.2;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
 
@@ -91,18 +99,13 @@ function playExplosion() {
     const source = ctx.createBufferSource();
     source.buffer = buffer;
 
-    // === 低通（低频更猛） ===
     const filter = ctx.createBiquadFilter();
     filter.type = "lowpass";
     filter.frequency.value = 500;
 
-    // === 音量（显著增强） ===
     const gain = ctx.createGain();
-    gain.gain.setValueAtTime(2.8, ctx.currentTime); // 🔥 原来≈1，现在≈3倍
-    gain.gain.exponentialRampToValueAtTime(
-        0.02,
-        ctx.currentTime + 1.1
-    );
+    gain.gain.setValueAtTime(2.8, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.02, ctx.currentTime + 1.1);
 
     source.connect(filter);
     filter.connect(gain);
@@ -123,6 +126,10 @@ function explodeEffect() {
 }
 
 startBtn.addEventListener("click", () => {
+    // 全屏（必须用户触发）
+    requestFullScreen();
+
+    // iOS 音频解锁
     if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
@@ -130,15 +137,13 @@ startBtn.addEventListener("click", () => {
     startBtn.style.display = "none";
     statusText.style.display = "block";
 
-    const randomTime = Math.random() * 20000;
-
     setTimeout(() => {
         playExplosion();
         explodeEffect();
 
         statusText.style.display = "none";
         startBtn.style.display = "inline-block";
-    }, randomTime);
+    }, FIXED_TIME);
 });
 </script>
 
