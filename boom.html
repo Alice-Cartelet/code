@@ -1,75 +1,142 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <title>炸弹倒计时</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            font-family: sans-serif;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>炸弹计时</title>
 
-        button {
-            font-size: 24px;
-            padding: 15px 40px;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
-
-<button id="startBtn">开始</button>
-
-<script>
-    const startBtn = document.getElementById("startBtn");
-
-    function playExplosionSound() {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-        // 创建噪声
-        const bufferSize = audioCtx.sampleRate;
-        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-        const data = buffer.getChannelData(0);
-
-        for (let i = 0; i < bufferSize; i++) {
-            data[i] = Math.random() * 2 - 1; // 白噪声
-        }
-
-        const noise = audioCtx.createBufferSource();
-        noise.buffer = buffer;
-
-        // 滤波器（更像爆炸）
-        const filter = audioCtx.createBiquadFilter();
-        filter.type = "lowpass";
-        filter.frequency.value = 800;
-
-        // 音量控制（快速衰减）
-        const gainNode = audioCtx.createGain();
-        gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
-
-        noise.connect(filter);
-        filter.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-
-        noise.start();
-        noise.stop(audioCtx.currentTime + 0.6);
+<style>
+    body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #111;
+        color: white;
+        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        overflow: hidden;
     }
 
-    startBtn.onclick = () => {
-        startBtn.style.display = "none";
+    #container {
+        text-align: center;
+        z-index: 10;
+    }
 
-        // 0–20 秒随机（毫秒）
-        const randomTime = Math.random() * 20000;
+    button {
+        font-size: 22px;
+        padding: 14px 40px;
+        border: none;
+        border-radius: 10px;
+        background: #ff3b30;
+        color: white;
+        cursor: pointer;
+    }
 
-        setTimeout(() => {
-            playExplosionSound();
-            startBtn.style.display = "block";
-        }, randomTime);
-    };
+    #status {
+        font-size: 24px;
+        margin-top: 20px;
+        display: none;
+    }
+
+    /* 红色闪屏层 */
+    #flash {
+        position: fixed;
+        inset: 0;
+        background: red;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .explode {
+        animation: flash 0.4s ease-in-out;
+    }
+
+    @keyframes flash {
+        0%   { opacity: 0; }
+        30%  { opacity: 0.9; }
+        60%  { opacity: 0.3; }
+        100% { opacity: 0; }
+    }
+</style>
+</head>
+
+<body>
+
+<div id="flash"></div>
+
+<div id="container">
+    <button id="startBtn">开始</button>
+    <div id="status">计时中…</div>
+</div>
+
+<script>
+let audioCtx = null;
+
+const startBtn = document.getElementById("startBtn");
+const statusText = document.getElementById("status");
+const flash = document.getElementById("flash");
+
+function playExplosion() {
+    const bufferSize = audioCtx.sampleRate;
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+
+    for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+    }
+
+    const source = audioCtx.createBufferSource();
+    source.buffer = buffer;
+
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.value = 700;
+
+    const gain = audioCtx.createGain();
+    gain.gain.setValueAtTime(1, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.7);
+
+    source.connect(filter);
+    filter.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    source.start();
+    source.stop(audioCtx.currentTime + 0.7);
+}
+
+function explodeEffect() {
+    // 红色闪屏
+    flash.classList.remove("explode");
+    void flash.offsetWidth; // 强制重绘，确保动画重复触发
+    flash.classList.add("explode");
+
+    // 手机震动（部分设备支持）
+    if (navigator.vibrate) {
+        navigator.vibrate([200, 50, 200]);
+    }
+}
+
+startBtn.addEventListener("click", () => {
+    // iOS 必须在用户点击时创建 AudioContext
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    startBtn.style.display = "none";
+    statusText.style.display = "block";
+
+    // 随机 0–20 秒
+    const randomTime = Math.random() * 20000;
+
+    setTimeout(() => {
+        playExplosion();
+        explodeEffect();
+
+        statusText.style.display = "none";
+        startBtn.style.display = "inline-block";
+    }, randomTime);
+});
 </script>
 
 </body>
