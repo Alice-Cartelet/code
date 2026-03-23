@@ -2,54 +2,161 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<title>LRC工具（带偏移）</title>
+<title>LRC Studio</title>
 <style>
+* { box-sizing: border-box; }
+
 body {
-    font-family: -apple-system, sans-serif;
-    max-width: 900px;
-    margin: 40px auto;
-    background: #f5f5f5;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(135deg, #1e1e2f, #2b2b3d);
+    color: #fff;
 }
+
+.container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+h1 {
+    font-weight: 600;
+    margin-bottom: 20px;
+    opacity: 0.9;
+}
+
+.card {
+    background: rgba(255,255,255,0.05);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(10px);
+}
+
 textarea {
     width: 100%;
     height: 200px;
-    margin: 10px 0;
+    background: #111;
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    color: #0f0;
     font-family: monospace;
+    font-size: 13px;
 }
-input {
-    padding: 6px;
-    width: 120px;
+
+.controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
 }
+
+input[type="range"] {
+    flex: 1;
+}
+
 button {
-    padding: 10px 20px;
-    margin-right: 10px;
+    background: #4f8cff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #6aa0ff;
+}
+
+.dropzone {
+    border: 2px dashed rgba(255,255,255,0.2);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 15px;
+    opacity: 0.7;
+}
+
+.dropzone.dragover {
+    border-color: #4f8cff;
+    opacity: 1;
 }
 </style>
 </head>
 <body>
 
-<h2>🎤 LRC逐字转换 + 偏移工具</h2>
+<div class="container">
+    <h1>🎤 LRC Studio</h1>
 
-<p>偏移（毫秒，可负数）：</p>
-<input id="offset" value="0">
+    <div class="card">
+        <div class="controls">
+            <span>偏移：</span>
+            <input type="range" id="offsetRange" min="-1000" max="1000" value="0">
+            <span id="offsetValue">0 ms</span>
+        </div>
 
-<p>输入：</p>
-<textarea id="input"></textarea>
+        <div class="dropzone" id="dropzone">
+            拖拽 .lrc 文件到这里
+        </div>
 
-<button onclick="convert()">转换</button>
-<button onclick="download()">下载</button>
+        <textarea id="input" placeholder="粘贴歌词..."></textarea>
 
-<p>输出：</p>
-<textarea id="output"></textarea>
+        <div style="margin-top:10px;">
+            <button onclick="convert()">转换</button>
+            <button onclick="download()">下载</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <textarea id="output" placeholder="输出结果..."></textarea>
+    </div>
+</div>
 
 <script>
+// ===== UI =====
+const range = document.getElementById("offsetRange");
+const label = document.getElementById("offsetValue");
+
+range.oninput = () => {
+    label.innerText = range.value + " ms";
+};
+
+// 拖拽
+const dropzone = document.getElementById("dropzone");
+
+dropzone.ondragover = e => {
+    e.preventDefault();
+    dropzone.classList.add("dragover");
+};
+
+dropzone.ondragleave = () => {
+    dropzone.classList.remove("dragover");
+};
+
+dropzone.ondrop = e => {
+    e.preventDefault();
+    dropzone.classList.remove("dragover");
+
+    let file = e.dataTransfer.files[0];
+    let reader = new FileReader();
+
+    reader.onload = e => {
+        document.getElementById("input").value = e.target.result;
+    };
+
+    reader.readAsText(file);
+};
+
+// ===== 核心逻辑 =====
 function parseTime(t) {
     let [m, s] = t.split(":");
     return parseInt(m)*60000 + parseFloat(s)*1000;
 }
 
 function formatTime(ms) {
-    ms = Math.max(0, ms); // 防负数
+    ms = Math.max(0, ms);
     let m = Math.floor(ms / 60000);
     let s = (ms % 60000) / 1000;
     return `[${String(m).padStart(2,'0')}:${s.toFixed(3).padStart(6,'0')}]`;
@@ -61,17 +168,15 @@ function isWordLrc(line) {
 }
 
 function extractPairs(line) {
-    let regex = /\[(\d+:\d+\.\d+)\]([^\[]?)/g;
+    let regex = /\[(\d+:\d+\.\d+)\]([^\[]*)/g;
     let result = [];
     let match;
 
     while ((match = regex.exec(line)) !== null) {
         let time = parseTime(match[1]);
-        let char = match[2] || "";
-
-        if (char === "" && line[regex.lastIndex] === "[") continue;
-
-        result.push({ time, char });
+        let text = match[2] || "";
+        if (text === "" && line[regex.lastIndex] === "[") continue;
+        result.push({ time, text });
     }
 
     return result;
@@ -79,24 +184,24 @@ function extractPairs(line) {
 
 function convertLine(line, offset) {
     let pairs = extractPairs(line);
-    let valid = pairs.filter(p => p.char !== "");
+    let valid = pairs.filter(p => p.text !== "");
     if (valid.length < 2) return line;
 
     pairs.sort((a, b) => a.time - b.time);
 
     let base = pairs[0].time + offset;
 
-    let chars = [];
+    let texts = [];
     let times = [];
 
     pairs.forEach(p => {
-        if (p.char !== "") {
-            chars.push(p.char);
+        if (p.text !== "") {
+            texts.push(p.text);
             times.push(p.time + offset);
         }
     });
 
-    let text = chars.join("");
+    let text = texts.join("");
 
     let tt = "[tt]";
     times.forEach((t, i) => {
@@ -108,7 +213,6 @@ function convertLine(line, offset) {
     return `${formatTime(base)}${text}\n${formatTime(base)}${tt}`;
 }
 
-// ⭐ 普通LRC偏移（额外加的）
 function shiftNormalLine(line, offset) {
     return line.replace(/\[(\d+:\d+\.\d+)\]/g, (match, t) => {
         let ms = parseTime(t) + offset;
@@ -118,18 +222,13 @@ function shiftNormalLine(line, offset) {
 
 function convert() {
     let input = document.getElementById("input").value;
-    let offset = parseInt(document.getElementById("offset").value) || 0;
+    let offset = parseInt(range.value) || 0;
 
     let lines = input.split("\n");
 
     let result = lines.map(line => {
-        if (isWordLrc(line)) {
-            return convertLine(line, offset);
-        }
-        // 普通LRC也偏移
-        if (line.includes("[")) {
-            return shiftNormalLine(line, offset);
-        }
+        if (isWordLrc(line)) return convertLine(line, offset);
+        if (line.includes("[")) return shiftNormalLine(line, offset);
         return line;
     });
 
@@ -137,8 +236,7 @@ function convert() {
 }
 
 function download() {
-    let content = document.getElementById("output").value;
-    let blob = new Blob([content], { type: "text/plain" });
+    let blob = new Blob([document.getElementById("output").value]);
     let a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = "output.lrc";
