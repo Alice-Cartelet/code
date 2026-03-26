@@ -160,7 +160,7 @@ async function process() {
 
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = file.name.replace(".mp3", "_clean.mp3");
+    a.download = file.name;
     a.click();
   }
 
