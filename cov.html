@@ -41,7 +41,6 @@ textarea {
     box-sizing: border-box;
 }
 
-/* ⭐ 中间控制区 */
 .center-controls {
     display: flex;
     justify-content: center;
@@ -149,6 +148,7 @@ function extractPairs(line) {
     while ((match = regex.exec(line)) !== null) {
         let time = parseTime(match[1]);
         let text = match[2] || "";
+        // 这里原有的判断逻辑保留，确保提取到行尾最后一个纯时间戳（结束标签）
         if (text === "" && line[regex.lastIndex] === "[") continue;
         result.push({ time, text });
     }
@@ -156,44 +156,42 @@ function extractPairs(line) {
     return result;
 }
 
-// 修复后的 convertLine 函数
+// 彻底修复结束时间问题
 function convertLine(line, offset) {
     let pairs = extractPairs(line);
-    let valid = pairs.filter(p => p.text !== "");
-    if (valid.length < 2) return line;
+    if (pairs.length === 0) return line;
 
     pairs.sort((a, b) => a.time - b.time);
 
-    let base = pairs[0].time + offset;
+    let words = pairs.filter(p => p.text !== "");
+    if (words.length === 0) return line; 
 
-    let texts = [];
-    let times = [];
-    let charIndices = []; // 用来存储每个片段对应的真实字符起止点
-    let currentCharIndex = 0; // 累计字符长度（字母数）
+    let base = words[0].time + offset;
 
-    pairs.forEach(p => {
-        if (p.text !== "") {
-            texts.push(p.text);
-            times.push(p.time + offset);
-            
-            // 记录当前片段第一个字母的索引
-            charIndices.push(currentCharIndex); 
-            // 累加当前文本的字符数（包含英文字母、标点和空格）
-            currentCharIndex += p.text.length; 
-        }
-    });
-
-    let text = texts.join("");
-
+    let textStr = "";
     let tt = "[tt]";
-    times.forEach((t, i) => {
-        // 使用实际的字符索引 charIndices[i]
-        tt += `<${t - base},${charIndices[i]}>`;
+    let currentCharIndex = 0;
+
+    words.forEach(w => {
+        textStr += w.text;
+        let t = w.time + offset;
+        tt += `<${t - base},${currentCharIndex}>`;
+        currentCharIndex += w.text.length;
     });
 
-    tt += `<${times[times.length - 1] - base}>`;
+    let lastPair = pairs[pairs.length - 1];
+    let endTime = lastPair.time + offset;
 
-    return `${formatTime(base)}${text}\n${formatTime(base)}${tt}`;
+    // 智能修正结束时间，防止最后一个词被跳过
+    if (lastPair.text !== "") {
+        endTime += 500; 
+    } else if (endTime <= words[words.length - 1].time + offset) {
+        endTime = words[words.length - 1].time + offset + 500;
+    }
+
+    tt += `<${endTime - base}>`;
+
+    return `${formatTime(base)}${textStr}\n${formatTime(base)}${tt}`;
 }
 
 function shiftNormalLine(line, offset) {
@@ -234,7 +232,7 @@ function download() {
     a.href = URL.createObjectURL(blob);
     a.download = "output.lrc";
     a.click();
-    URL.revokeObjectURL(a.href); // 释放内存
+    URL.revokeObjectURL(a.href);
 }
 </script>
 
