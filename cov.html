@@ -38,6 +38,7 @@ textarea {
     padding: 12px;
     color: #0f0;
     font-family: monospace;
+    box-sizing: border-box;
 }
 
 /* ⭐ 中间控制区 */
@@ -86,6 +87,7 @@ button:hover {
     text-align: center;
     margin-bottom: 10px;
     font-size: 13px;
+    cursor: pointer;
 }
 </style>
 </head>
@@ -100,7 +102,7 @@ button:hover {
     </div>
     <div class="center-controls">
         偏移(ms)
-        <input id="offset" value="0">
+        <input id="offset" type="number" value="0">
         <button onclick="convert()">转换</button>
         <button class="download-btn" onclick="download()">下载</button>
     </div>
@@ -114,16 +116,19 @@ dropzone.ondragover = e => { e.preventDefault(); };
 dropzone.ondrop = e => {
     e.preventDefault();
     let file = e.dataTransfer.files[0];
+    if (!file) return;
     let reader = new FileReader();
     reader.onload = e => {
         document.getElementById("input").value = e.target.result;
     };
     reader.readAsText(file);
 };
+
 function parseTime(t) {
     let [m, s] = t.split(":");
-    return parseInt(m)*60000 + parseFloat(s)*1000;
+    return parseInt(m) * 60000 + parseFloat(s) * 1000;
 }
+
 function formatTime(ms) {
     ms = Math.max(0, ms);
     let m = Math.floor(ms / 60000);
@@ -151,6 +156,7 @@ function extractPairs(line) {
     return result;
 }
 
+// 修复后的 convertLine 函数
 function convertLine(line, offset) {
     let pairs = extractPairs(line);
     let valid = pairs.filter(p => p.text !== "");
@@ -162,11 +168,18 @@ function convertLine(line, offset) {
 
     let texts = [];
     let times = [];
+    let charIndices = []; // 用来存储每个片段对应的真实字符起止点
+    let currentCharIndex = 0; // 累计字符长度（字母数）
 
     pairs.forEach(p => {
         if (p.text !== "") {
             texts.push(p.text);
             times.push(p.time + offset);
+            
+            // 记录当前片段第一个字母的索引
+            charIndices.push(currentCharIndex); 
+            // 累加当前文本的字符数（包含英文字母、标点和空格）
+            currentCharIndex += p.text.length; 
         }
     });
 
@@ -174,7 +187,8 @@ function convertLine(line, offset) {
 
     let tt = "[tt]";
     times.forEach((t, i) => {
-        tt += `<${t - base},${i}>`;
+        // 使用实际的字符索引 charIndices[i]
+        tt += `<${t - base},${charIndices[i]}>`;
     });
 
     tt += `<${times[times.length - 1] - base}>`;
@@ -193,6 +207,11 @@ function convert() {
     let input = document.getElementById("input").value;
     let offset = parseInt(document.getElementById("offset").value) || 0;
 
+    if (!input.trim()) {
+        alert("请输入或拖入歌词文件！");
+        return;
+    }
+
     let lines = input.split("\n");
 
     let result = lines.map(line => {
@@ -205,11 +224,17 @@ function convert() {
 }
 
 function download() {
-    let blob = new Blob([document.getElementById("output").value]);
+    let outputText = document.getElementById("output").value;
+    if (!outputText.trim()) {
+        alert("没有可下载的内容，请先转换！");
+        return;
+    }
+    let blob = new Blob([outputText], { type: "text/plain;charset=utf-8" });
     let a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = "output.lrc";
     a.click();
+    URL.revokeObjectURL(a.href); // 释放内存
 }
 </script>
 
