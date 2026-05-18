@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C++ 去注释工具</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Consolas","Microsoft YaHei",sans-serif;
+}
+
+body{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#0f172a,#1e293b);
+    color:white;
+}
+
+.container{
+    width:90%;
+    max-width:1200px;
+    height:90vh;
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:24px;
+    backdrop-filter:blur(12px);
+    padding:24px;
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+    box-shadow:0 10px 40px rgba(0,0,0,0.4);
+}
+
+h1{
+    text-align:center;
+    font-size:32px;
+    letter-spacing:2px;
+}
+
+.editor{
+    flex:1;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+}
+
+.panel{
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    border-radius:18px;
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.08);
+}
+
+.panel-title{
+    padding:14px 18px;
+    background:rgba(255,255,255,0.05);
+    border-bottom:1px solid rgba(255,255,255,0.08);
+    font-size:18px;
+}
+
+textarea{
+    flex:1;
+    resize:none;
+    border:none;
+    outline:none;
+    background:transparent;
+    color:#e2e8f0;
+    padding:18px;
+    font-size:15px;
+    line-height:1.7;
+}
+
+textarea::placeholder{
+    color:#94a3b8;
+}
+
+.buttons{
+    display:flex;
+    justify-content:center;
+    gap:16px;
+}
+
+button{
+    border:none;
+    padding:14px 28px;
+    border-radius:14px;
+    cursor:pointer;
+    font-size:16px;
+    font-weight:600;
+    transition:0.25s;
+}
+
+.remove-btn{
+    background:linear-gradient(135deg,#38bdf8,#2563eb);
+    color:white;
+}
+
+.clear-btn{
+    background:rgba(255,255,255,0.08);
+    color:white;
+}
+
+button:hover{
+    transform:translateY(-2px);
+    opacity:0.92;
+}
+
+.tip{
+    text-align:center;
+    color:#94a3b8;
+    font-size:14px;
+}
+
+@media(max-width:900px){
+    .editor{
+        grid-template-columns:1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>C++ 去注释工具</h1>
+
+    <div class="editor">
+
+        <div class="panel">
+            <div class="panel-title">输入带注释代码</div>
+
+            <textarea id="inputCode" placeholder="请输入带注释的 C++ 代码...">
+// 单行注释
+#include <iostream>
+
+int main(){
+
+    /*
+        多行注释
+    */
+
+    int a = 10; // 变量定义
+
+    std::cout << a << std::endl;
+
+    return 0;
+}
+            </textarea>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">去除注释结果</div>
+
+            <textarea id="outputCode" readonly placeholder="去除注释后的代码会显示在这里..."></textarea>
+        </div>
+
+    </div>
+
+    <div class="buttons">
+        <button class="remove-btn" onclick="removeComments()">
+            去除注释
+        </button>
+
+        <button class="clear-btn" onclick="clearAll()">
+            清空
+        </button>
+    </div>
+
+    <div class="tip">
+        支持删除 // 单行注释 与 /* 多行注释 */
+    </div>
+
+</div>
+
+<script>
+function removeComments(){
+
+    let code=document.getElementById("inputCode").value;
+
+    // 删除多行注释
+    code=code.replace(/\/\*[\s\S]*?\*\//g,'');
+
+    // 删除单行注释
+    code=code.replace(/\/\/.*$/gm,'');
+
+    // 删除多余空行
+    code=code.replace(/^\s*[\r\n]/gm,'');
+
+    document.getElementById("outputCode").value=code;
+}
+
+function clearAll(){
+    document.getElementById("inputCode").value="";
+    document.getElementById("outputCode").value="";
+}
+</script>
+
+</body>
+</html>
