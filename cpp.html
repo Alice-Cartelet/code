@@ -6,7 +6,6 @@
 <title>C++ 代码整理工具</title>
 
 <style>
-
 *{
     box-sizing:border-box;
 }
@@ -24,7 +23,7 @@ body{
 .top{
     padding:12px;
     background:#0f172a;
-    border-bottom:1px solid #243041;
+    border-bottom:1px solid #263041;
     display:flex;
     gap:10px;
 }
@@ -77,7 +76,6 @@ textarea{
     line-height:1.6;
     font-family:Consolas,"Microsoft YaHei",monospace;
 }
-
 </style>
 </head>
 
@@ -92,7 +90,7 @@ textarea{
 <div class="wrap">
 
     <div class="panel">
-        <div class="title">输入 C++ 代码</div>
+        <div class="title">输入代码</div>
         <textarea id="input"></textarea>
     </div>
 
@@ -113,23 +111,27 @@ function protectSpecialLines(code)
 
         const t = line.trim();
 
+        // 不整理头文件
         if(t.startsWith("#include"))
             return "__KEEP__" + line;
 
+        // 不整理宏
         if(t.startsWith("#define"))
             return "__KEEP__" + line;
 
-        if(t.startsWith("#pragma"))
-            return "__KEEP__" + line;
-
+        // Qt moc
         if(t.startsWith("Q_OBJECT"))
             return "__KEEP__" + line;
 
+        // pragma
+        if(t.startsWith("#pragma"))
+            return "__KEEP__" + line;
+
+        // namespace
         if(t.startsWith("using namespace"))
             return "__KEEP__" + line;
 
         return line;
-
     }).join("\n");
 }
 
@@ -140,9 +142,10 @@ function restoreSpecialLines(code)
 
 function removeComments(code)
 {
+    // 保留字符串
     let strings = [];
 
-    code = code.replace(/"(?:\\.|[^"\\])*"/g,m=>{
+    code = code.replace(/"(?:\\.|[^"\\])*"/g, m=>{
         strings.push(m);
         return `__STR_${strings.length-1}__`;
     });
@@ -153,6 +156,7 @@ function removeComments(code)
     // 单行注释
     code = code.replace(/\/\/.*$/gm,"");
 
+    // 还原字符串
     code = code.replace(/__STR_(\d+)__/g,(m,i)=>{
         return strings[i];
     });
@@ -163,7 +167,6 @@ function removeComments(code)
 function removeExtraBlankLines(code)
 {
     return code
-        .replace(/[ \t]+\n/g,"\n")
         .replace(/\n\s*\n+/g,"\n\n")
         .trim();
 }
@@ -195,23 +198,6 @@ function mergeStatements(code)
             continue;
         }
 
-        // class struct enum
-        if(
-            line.startsWith("class ")
-            || line.startsWith("struct ")
-            || line.startsWith("enum ")
-        )
-        {
-            if(buffer.trim())
-            {
-                result.push(buffer.trim());
-                buffer = "";
-            }
-
-            result.push(line);
-            continue;
-        }
-
         // 独立括号
         if(line === "{" || line === "}")
         {
@@ -225,9 +211,24 @@ function mergeStatements(code)
             continue;
         }
 
+        // 类声明不要乱合并
+        if(line.startsWith("class ")
+        || line.startsWith("struct ")
+        || line.startsWith("enum "))
+        {
+            if(buffer.trim())
+            {
+                result.push(buffer.trim());
+                buffer = "";
+            }
+
+            result.push(line);
+            continue;
+        }
+
         buffer += (buffer ? " " : "") + line;
 
-        const end =
+        let end =
             line.endsWith(";")
             || line.endsWith("{")
             || line.endsWith("}");
@@ -252,87 +253,6 @@ function beautifyBraces(code)
     code = code.replace(/\s*\}\s*/g,"\n}\n");
 
     code = code.replace(/\n+/g,"\n");
-
-    return code;
-}
-
-function normalizeSpaces(code)
-{
-    let strings = [];
-
-    // 保护字符串
-    code = code.replace(/"(?:\\.|[^"\\])*"/g,m=>{
-        strings.push(m);
-        return `__STR_${strings.length - 1}__`;
-    });
-
-    // tab
-    code = code.replace(/\t/g," ");
-
-    // 多空格
-    code = code.replace(/[ ]{2,}/g," ");
-
-    // 行尾空格
-    code = code.replace(/[ ]+\n/g,"\n");
-
-    // (
-    code = code.replace(/\s+\(/g,"(");
-    code = code.replace(/\(\s+/g,"(");
-    code = code.replace(/\s+\)/g,")");
-
-    // [
-    code = code.replace(/\[\s+/g,"[");
-    code = code.replace(/\s+\]/g,"]");
-
-    // ,
-    code = code.replace(/,\s*/g,", ");
-
-    // ;
-    code = code.replace(/\s+;/g,";");
-
-    // {
-    code = code.replace(/\s*\{/g," {");
-
-    // 运算符
-    code = code.replace(/\s*=\s*/g," = ");
-    code = code.replace(/\s*\+\s*/g," + ");
-    code = code.replace(/\s*-\s*/g," - ");
-    code = code.replace(/\s*\/\s*/g," / ");
-    code = code.replace(/\s*\*\s*/g," * ");
-    code = code.replace(/\s*<\s*/g," < ");
-    code = code.replace(/\s*>\s*/g," > ");
-
-    // 修复
-    code = code.replace(/< </g,"<<");
-    code = code.replace(/> >/g,">>");
-
-    code = code.replace(/= =/g,"==");
-    code = code.replace(/! =/g,"!=");
-
-    code = code.replace(/\+ \+/g,"++");
-    code = code.replace(/- -/g,"--");
-
-    code = code.replace(/& &/g,"&&");
-    code = code.replace(/\| \|/g,"||");
-
-    code = code.replace(/\+ =/g,"+=");
-    code = code.replace(/- =/g,"-=");
-    code = code.replace(/\* =/g,"*=");
-    code = code.replace(/\/ =/g,"/=");
-
-    // :
-    code = code.replace(/\s*:\s*/g," : ");
-
-    // ?
-    code = code.replace(/\s*\?\s*/g," ? ");
-
-    // 多空格再清一次
-    code = code.replace(/[ ]{2,}/g," ");
-
-    // 恢复字符串
-    code = code.replace(/__STR_(\d+)__/g,(m,i)=>{
-        return strings[i];
-    });
 
     return code;
 }
@@ -366,17 +286,51 @@ function indentCode(code)
     return result.join("\n");
 }
 
+function normalizeSpaces(code)
+{
+    // 不处理字符串
+    let strings = [];
+
+    code = code.replace(/"(?:\\.|[^"\\])*"/g,m=>{
+        strings.push(m);
+        return `__STR_${strings.length-1}__`;
+    });
+
+    code = code.replace(/[ \t]+/g," ");
+
+    code = code.replace(/ ?\n ?/g,"\n");
+
+    // 不破坏模板
+    code = code.replace(/< </g,"<<");
+    code = code.replace(/> >/g,">>");
+
+    // 不破坏运算符
+    code = code.replace(/= =/g,"==");
+    code = code.replace(/! =/g,"!=");
+    code = code.replace(/\+ \+/g,"++");
+    code = code.replace(/- -/g,"--");
+    code = code.replace(/& &/g,"&&");
+    code = code.replace(/\| \|/g,"||");
+
+    // 还原字符串
+    code = code.replace(/__STR_(\d+)__/g,(m,i)=>{
+        return strings[i];
+    });
+
+    return code;
+}
+
 function formatCpp()
 {
     let code = document.getElementById("input").value;
 
-    // 保护特殊行
+    // 保护特殊内容
     code = protectSpecialLines(code);
 
     // 删除注释
     code = removeComments(code);
 
-    // 删除多余空行
+    // 清理空行
     code = removeExtraBlankLines(code);
 
     // 合并语句
@@ -394,7 +348,7 @@ function formatCpp()
     // 清理空行
     code = removeExtraBlankLines(code);
 
-    // 还原
+    // 还原特殊行
     code = restoreSpecialLines(code);
 
     document.getElementById("output").value = code;
