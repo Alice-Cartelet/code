@@ -3,67 +3,64 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>C++ 去注释工具</title>
+<title>C++ 代码整理工具</title>
 
 <style>
+
 *{
-    margin:0;
-    padding:0;
     box-sizing:border-box;
-    font-family:"Consolas","Microsoft YaHei",sans-serif;
 }
 
 body{
+    margin:0;
+    background:#111827;
+    color:#e5e7eb;
+    font-family:Consolas,"Microsoft YaHei",monospace;
     height:100vh;
     display:flex;
-    justify-content:center;
-    align-items:center;
-    background:linear-gradient(135deg,#0f172a,#1e293b);
-    color:white;
-}
-
-.container{
-    width:90%;
-    max-width:1200px;
-    height:90vh;
-    background:rgba(255,255,255,0.05);
-    border:1px solid rgba(255,255,255,0.08);
-    border-radius:24px;
-    backdrop-filter:blur(12px);
-    padding:24px;
-    display:flex;
     flex-direction:column;
-    gap:20px;
-    box-shadow:0 10px 40px rgba(0,0,0,0.4);
 }
 
-h1{
-    text-align:center;
-    font-size:32px;
-    letter-spacing:2px;
+.top{
+    padding:12px;
+    background:#0f172a;
+    border-bottom:1px solid #243041;
+    display:flex;
+    gap:10px;
 }
 
-.editor{
+button{
+    border:none;
+    background:#2563eb;
+    color:white;
+    padding:10px 18px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:14px;
+}
+
+button:hover{
+    background:#3b82f6;
+}
+
+.wrap{
     flex:1;
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:20px;
+    display:flex;
+    gap:12px;
+    padding:12px;
+    overflow:hidden;
 }
 
 .panel{
+    flex:1;
     display:flex;
     flex-direction:column;
-    overflow:hidden;
-    border-radius:18px;
-    background:rgba(255,255,255,0.04);
-    border:1px solid rgba(255,255,255,0.08);
 }
 
-.panel-title{
-    padding:14px 18px;
-    background:rgba(255,255,255,0.05);
-    border-bottom:1px solid rgba(255,255,255,0.08);
-    font-size:18px;
+.title{
+    margin-bottom:8px;
+    color:#93c5fd;
+    font-size:14px;
 }
 
 textarea{
@@ -71,137 +68,355 @@ textarea{
     resize:none;
     border:none;
     outline:none;
-    background:transparent;
-    color:#e2e8f0;
-    padding:18px;
-    font-size:15px;
-    line-height:1.7;
-}
-
-textarea::placeholder{
-    color:#94a3b8;
-}
-
-.buttons{
-    display:flex;
-    justify-content:center;
-    gap:16px;
-}
-
-button{
-    border:none;
-    padding:14px 28px;
+    background:#0b1220;
+    color:#f3f4f6;
+    border:1px solid #243041;
     border-radius:14px;
-    cursor:pointer;
-    font-size:16px;
-    font-weight:600;
-    transition:0.25s;
-}
-
-.remove-btn{
-    background:linear-gradient(135deg,#38bdf8,#2563eb);
-    color:white;
-}
-
-.clear-btn{
-    background:rgba(255,255,255,0.08);
-    color:white;
-}
-
-button:hover{
-    transform:translateY(-2px);
-    opacity:0.92;
-}
-
-.tip{
-    text-align:center;
-    color:#94a3b8;
+    padding:18px;
     font-size:14px;
+    line-height:1.6;
+    font-family:Consolas,"Microsoft YaHei",monospace;
 }
 
-@media(max-width:900px){
-    .editor{
-        grid-template-columns:1fr;
-    }
-}
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="top">
+    <button onclick="formatCpp()">整理代码</button>
+    <button onclick="copyCode()">复制结果</button>
+    <button onclick="clearAll()">清空</button>
+</div>
 
-    <h1>C++ 去注释工具</h1>
+<div class="wrap">
 
-    <div class="editor">
-
-        <div class="panel">
-            <div class="panel-title">输入带注释代码</div>
-
-            <textarea id="inputCode" placeholder="请输入带注释的 C++ 代码...">
-// 单行注释
-#include <iostream>
-
-int main(){
-
-    /*
-        多行注释
-    */
-
-    int a = 10; // 变量定义
-
-    std::cout << a << std::endl;
-
-    return 0;
-}
-            </textarea>
-        </div>
-
-        <div class="panel">
-            <div class="panel-title">去除注释结果</div>
-
-            <textarea id="outputCode" readonly placeholder="去除注释后的代码会显示在这里..."></textarea>
-        </div>
-
+    <div class="panel">
+        <div class="title">输入 C++ 代码</div>
+        <textarea id="input"></textarea>
     </div>
 
-    <div class="buttons">
-        <button class="remove-btn" onclick="removeComments()">
-            去除注释
-        </button>
-
-        <button class="clear-btn" onclick="clearAll()">
-            清空
-        </button>
-    </div>
-
-    <div class="tip">
-        支持删除 // 单行注释 与 /* 多行注释 */
+    <div class="panel">
+        <div class="title">整理结果</div>
+        <textarea id="output"></textarea>
     </div>
 
 </div>
 
 <script>
-function removeComments(){
 
-    let code=document.getElementById("inputCode").value;
+function protectSpecialLines(code)
+{
+    const lines = code.split("\n");
 
-    // 删除多行注释
-    code=code.replace(/\/\*[\s\S]*?\*\//g,'');
+    return lines.map(line=>{
 
-    // 删除单行注释
-    code=code.replace(/\/\/.*$/gm,'');
+        const t = line.trim();
+
+        if(t.startsWith("#include"))
+            return "__KEEP__" + line;
+
+        if(t.startsWith("#define"))
+            return "__KEEP__" + line;
+
+        if(t.startsWith("#pragma"))
+            return "__KEEP__" + line;
+
+        if(t.startsWith("Q_OBJECT"))
+            return "__KEEP__" + line;
+
+        if(t.startsWith("using namespace"))
+            return "__KEEP__" + line;
+
+        return line;
+
+    }).join("\n");
+}
+
+function restoreSpecialLines(code)
+{
+    return code.replace(/__KEEP__/g,"");
+}
+
+function removeComments(code)
+{
+    let strings = [];
+
+    code = code.replace(/"(?:\\.|[^"\\])*"/g,m=>{
+        strings.push(m);
+        return `__STR_${strings.length-1}__`;
+    });
+
+    // 多行注释
+    code = code.replace(/\/\*[\s\S]*?\*\//g,"");
+
+    // 单行注释
+    code = code.replace(/\/\/.*$/gm,"");
+
+    code = code.replace(/__STR_(\d+)__/g,(m,i)=>{
+        return strings[i];
+    });
+
+    return code;
+}
+
+function removeExtraBlankLines(code)
+{
+    return code
+        .replace(/[ \t]+\n/g,"\n")
+        .replace(/\n\s*\n+/g,"\n\n")
+        .trim();
+}
+
+function mergeStatements(code)
+{
+    const lines = code.split("\n");
+
+    let result = [];
+    let buffer = "";
+
+    for(let raw of lines)
+    {
+        let line = raw.trim();
+
+        if(line === "")
+            continue;
+
+        // 特殊行直接保留
+        if(line.startsWith("__KEEP__"))
+        {
+            if(buffer.trim())
+            {
+                result.push(buffer.trim());
+                buffer = "";
+            }
+
+            result.push(line);
+            continue;
+        }
+
+        // class struct enum
+        if(
+            line.startsWith("class ")
+            || line.startsWith("struct ")
+            || line.startsWith("enum ")
+        )
+        {
+            if(buffer.trim())
+            {
+                result.push(buffer.trim());
+                buffer = "";
+            }
+
+            result.push(line);
+            continue;
+        }
+
+        // 独立括号
+        if(line === "{" || line === "}")
+        {
+            if(buffer.trim())
+            {
+                result.push(buffer.trim());
+                buffer = "";
+            }
+
+            result.push(line);
+            continue;
+        }
+
+        buffer += (buffer ? " " : "") + line;
+
+        const end =
+            line.endsWith(";")
+            || line.endsWith("{")
+            || line.endsWith("}");
+
+        if(end)
+        {
+            result.push(buffer.trim());
+            buffer = "";
+        }
+    }
+
+    if(buffer.trim())
+        result.push(buffer.trim());
+
+    return result.join("\n");
+}
+
+function beautifyBraces(code)
+{
+    code = code.replace(/\s*\{\s*/g,"\n{\n");
+
+    code = code.replace(/\s*\}\s*/g,"\n}\n");
+
+    code = code.replace(/\n+/g,"\n");
+
+    return code;
+}
+
+function normalizeSpaces(code)
+{
+    let strings = [];
+
+    // 保护字符串
+    code = code.replace(/"(?:\\.|[^"\\])*"/g,m=>{
+        strings.push(m);
+        return `__STR_${strings.length - 1}__`;
+    });
+
+    // tab
+    code = code.replace(/\t/g," ");
+
+    // 多空格
+    code = code.replace(/[ ]{2,}/g," ");
+
+    // 行尾空格
+    code = code.replace(/[ ]+\n/g,"\n");
+
+    // (
+    code = code.replace(/\s+\(/g,"(");
+    code = code.replace(/\(\s+/g,"(");
+    code = code.replace(/\s+\)/g,")");
+
+    // [
+    code = code.replace(/\[\s+/g,"[");
+    code = code.replace(/\s+\]/g,"]");
+
+    // ,
+    code = code.replace(/,\s*/g,", ");
+
+    // ;
+    code = code.replace(/\s+;/g,";");
+
+    // {
+    code = code.replace(/\s*\{/g," {");
+
+    // 运算符
+    code = code.replace(/\s*=\s*/g," = ");
+    code = code.replace(/\s*\+\s*/g," + ");
+    code = code.replace(/\s*-\s*/g," - ");
+    code = code.replace(/\s*\/\s*/g," / ");
+    code = code.replace(/\s*\*\s*/g," * ");
+    code = code.replace(/\s*<\s*/g," < ");
+    code = code.replace(/\s*>\s*/g," > ");
+
+    // 修复
+    code = code.replace(/< </g,"<<");
+    code = code.replace(/> >/g,">>");
+
+    code = code.replace(/= =/g,"==");
+    code = code.replace(/! =/g,"!=");
+
+    code = code.replace(/\+ \+/g,"++");
+    code = code.replace(/- -/g,"--");
+
+    code = code.replace(/& &/g,"&&");
+    code = code.replace(/\| \|/g,"||");
+
+    code = code.replace(/\+ =/g,"+=");
+    code = code.replace(/- =/g,"-=");
+    code = code.replace(/\* =/g,"*=");
+    code = code.replace(/\/ =/g,"/=");
+
+    // :
+    code = code.replace(/\s*:\s*/g," : ");
+
+    // ?
+    code = code.replace(/\s*\?\s*/g," ? ");
+
+    // 多空格再清一次
+    code = code.replace(/[ ]{2,}/g," ");
+
+    // 恢复字符串
+    code = code.replace(/__STR_(\d+)__/g,(m,i)=>{
+        return strings[i];
+    });
+
+    return code;
+}
+
+function indentCode(code)
+{
+    const lines = code.split("\n");
+
+    let indent = 0;
+
+    let result = [];
+
+    for(let raw of lines)
+    {
+        let line = raw.trim();
+
+        if(line === "")
+            continue;
+
+        if(line.startsWith("}"))
+            indent--;
+
+        let pad = "    ".repeat(Math.max(indent,0));
+
+        result.push(pad + line);
+
+        if(line.endsWith("{"))
+            indent++;
+    }
+
+    return result.join("\n");
+}
+
+function formatCpp()
+{
+    let code = document.getElementById("input").value;
+
+    // 保护特殊行
+    code = protectSpecialLines(code);
+
+    // 删除注释
+    code = removeComments(code);
 
     // 删除多余空行
-    code=code.replace(/^\s*[\r\n]/gm,'');
+    code = removeExtraBlankLines(code);
 
-    document.getElementById("outputCode").value=code;
+    // 合并语句
+    code = mergeStatements(code);
+
+    // 大括号整理
+    code = beautifyBraces(code);
+
+    // 空格整理
+    code = normalizeSpaces(code);
+
+    // 缩进
+    code = indentCode(code);
+
+    // 清理空行
+    code = removeExtraBlankLines(code);
+
+    // 还原
+    code = restoreSpecialLines(code);
+
+    document.getElementById("output").value = code;
 }
 
-function clearAll(){
-    document.getElementById("inputCode").value="";
-    document.getElementById("outputCode").value="";
+function copyCode()
+{
+    const out = document.getElementById("output");
+
+    out.select();
+
+    document.execCommand("copy");
+
+    alert("已复制");
 }
+
+function clearAll()
+{
+    document.getElementById("input").value = "";
+    document.getElementById("output").value = "";
+}
+
 </script>
 
 </body>
