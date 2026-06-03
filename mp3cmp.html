@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MP3压缩工具</title>
+
+<style>
+body{
+    font-family:Segoe UI,sans-serif;
+    max-width:600px;
+    margin:40px auto;
+    padding:20px;
+}
+
+.card{
+    border:1px solid #ddd;
+    border-radius:10px;
+    padding:20px;
+}
+
+button{
+    padding:10px 20px;
+    cursor:pointer;
+}
+
+input,select{
+    margin:10px 0;
+}
+
+#log{
+    white-space:pre-wrap;
+    background:#f5f5f5;
+    padding:10px;
+    border-radius:6px;
+    margin-top:15px;
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+    <h2>MP3压缩工具</h2>
+
+    <input type="file" id="fileInput" accept=".mp3,audio/mpeg">
+
+    <br>
+
+    <label>目标码率：</label>
+    <select id="bitrate">
+        <option>320</option>
+        <option selected>192</option>
+        <option>160</option>
+        <option>128</option>
+        <option>96</option>
+        <option>64</option>
+        <option>48</option>
+        <option>32</option>
+    </select>
+    kbps
+
+    <br><br>
+
+    <button onclick="compress()">开始压缩</button>
+
+    <div id="info"></div>
+    <div id="log"></div>
+</div>
+
+<script type="module">
+import { FFmpeg } from "https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/esm/index.js";
+import { fetchFile } from "https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.1/dist/esm/index.js";
+
+const ffmpeg = new FFmpeg();
+
+async function initFFmpeg() {
+    if (ffmpeg.loaded) return;
+
+    document.getElementById("log").textContent = "正在加载FFmpeg...";
+    await ffmpeg.load({
+        coreURL:
+        "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/esm/ffmpeg-core.js",
+        wasmURL:
+        "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/esm/ffmpeg-core.wasm"
+    });
+
+    document.getElementById("log").textContent = "FFmpeg加载完成";
+}
+
+window.compress = async function() {
+
+    const file =
+        document.getElementById("fileInput").files[0];
+
+    if (!file) {
+        alert("请选择MP3文件");
+        return;
+    }
+
+    const bitrate =
+        document.getElementById("bitrate").value;
+
+    await initFFmpeg();
+
+    document.getElementById("log").textContent =
+        "正在压缩，请稍候...";
+
+    const inputName = "input.mp3";
+    const outputName = "output.mp3";
+
+    await ffmpeg.writeFile(
+        inputName,
+        await fetchFile(file)
+    );
+
+    await ffmpeg.exec([
+        "-i",
+        inputName,
+        "-b:a",
+        bitrate + "k",
+        outputName
+    ]);
+
+    const data = await ffmpeg.readFile(outputName);
+
+    const blob = new Blob([data.buffer], {
+        type: "audio/mpeg"
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download =
+        file.name.replace(".mp3","") +
+        "_" + bitrate + "kbps.mp3";
+
+    a.click();
+
+    const originalSize =
+        (file.size / 1024 / 1024).toFixed(2);
+
+    const newSize =
+        (blob.size / 1024 / 1024).toFixed(2);
+
+    document.getElementById("info").innerHTML = `
+        <p>原文件：${originalSize} MB</p>
+        <p>压缩后：${newSize} MB</p>
+        <p>减少：${(
+            (1 - blob.size/file.size)*100
+        ).toFixed(1)}%</p>
+    `;
+
+    document.getElementById("log").textContent =
+        "压缩完成";
+};
+</script>
+
+</body>
+</html>
